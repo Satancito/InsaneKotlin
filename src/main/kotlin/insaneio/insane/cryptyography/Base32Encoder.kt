@@ -12,7 +12,6 @@ import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encodeToString
@@ -26,16 +25,12 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class Base32EncoderSerializer: KSerializer<Base32Encoder> {
 
-    companion object {
-        private val instance = Base32Encoder()
-    }
-
     override val descriptor: SerialDescriptor
         get() = buildClassSerialDescriptor(Base32Encoder.serialName)
         {
             element(Base32Encoder::removePadding.capitalize(), Boolean.serializer().descriptor)
             element(Base32Encoder::toLower.capitalize(), Boolean.serializer().descriptor)
-            element(Base32Encoder::assemblyName.capitalize(), String.serializer().descriptor)
+            element(Base32Encoder.Companion::assemblyName.capitalize(), String.serializer().descriptor)
         }
 
     override fun deserialize(decoder: Decoder): Base32Encoder {
@@ -60,7 +55,7 @@ class Base32Encoder(
     val removePadding: Boolean = false,
     val toLower: Boolean = false
 ) : IEncoder {
-    companion object CompanionDefault : ICompanionJsonSerializable<Base32Encoder>, ICompanionDefaultInstance<Base32Encoder> {
+    companion object : ICompanionJsonSerializable<Base32Encoder>, ICompanionDefaultInstance<Base32Encoder> {
         override val defaultInstance:Base32Encoder = Base32Encoder()
 
         override fun deserialize(json: String): Base32Encoder {
@@ -88,9 +83,4 @@ class Base32Encoder(
     override fun serialize(indented: Boolean): String {
         return IJsonSerializable.getJsonFormat(indented).encodeToString(this)
     }
-
-    override val assemblyName: String
-        get() = Base32Encoder.assemblyName
-    override val serialName: String
-        get() = Base32Encoder.serialName
 }

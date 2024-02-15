@@ -9,10 +9,13 @@ import kotlinx.serialization.json.Json
 
 fun main() {
 
+    val encoder:IEncoder = Base32Encoder()
+//    println(HexEncoder.deserialize( HexEncoder(true).serialize(true)).serialize(true))
+//    println(Base32Encoder().serialize(true))
+//    println(Base64Encoder().serialize(true))
+//    println(RsaKeyPair("public", "private").serialize(true))
+    //println(ShaHasher(HashAlgorithm.Sha512, encoder).serialize(true))
 
-    var encoder: IEncoder = Base64Encoder()// Base64Encoder(0U, false, Base64Encoding.Base64)
-    var json  = encoder.serialize(false)
-    println(json)
 
     return;
 //    encoder = Json.decodeFromString(json)

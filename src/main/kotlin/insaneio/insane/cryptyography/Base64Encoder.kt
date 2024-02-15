@@ -18,16 +18,13 @@ import kotlinx.serialization.json.*
 
 class Base64EncoderSerializer : KSerializer<Base64Encoder> {
 
-    companion object {
-        private val instance = Base64Encoder()
-    }
 
     override val descriptor: SerialDescriptor
         get() = buildClassSerialDescriptor(Base64Encoder.serialName) {
             element<Int>(Base64Encoder::lineBreaksLength.capitalize())
             element<Boolean>(Base64Encoder::removePadding.capitalize())
             element<Base64Encoding>(Base64Encoder::encodingType.capitalize())
-            element<String>(Base64Encoder::assemblyName.capitalize())
+            element<String>(Base64Encoder.Companion::assemblyName.capitalize())
         }
 
     override fun deserialize(decoder: Decoder): Base64Encoder {
@@ -56,7 +53,7 @@ class Base64Encoder(
     val removePadding: Boolean = false,
     val encodingType: Base64Encoding = Base64Encoding.Base64
 ) : IEncoder {
-    companion object CompanionDefault : ICompanionJsonSerializable<Base64Encoder>, ICompanionDefaultInstance<Base64Encoder> {
+    companion object : ICompanionJsonSerializable<Base64Encoder>, ICompanionDefaultInstance<Base64Encoder> {
         override val defaultInstance: Base64Encoder = Base64Encoder()
 
         override fun deserialize(json: String): Base64Encoder {
@@ -90,10 +87,6 @@ class Base64Encoder(
         return IJsonSerializable.getJsonFormat(indented).encodeToString(this)
     }
 
-    override val assemblyName: String
-        get() = Base64Encoder.assemblyName
-    override val serialName: String
-        get() = Base64Encoder.serialName
 
 
 }

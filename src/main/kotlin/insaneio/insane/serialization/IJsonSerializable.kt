@@ -12,6 +12,6 @@ interface IJsonSerializable {
 
     fun serialize(indented: Boolean = false): String
 
-    val assemblyName: String
-    val serialName: String
+//    val assemblyName: String
+//    val serialName: String
 }

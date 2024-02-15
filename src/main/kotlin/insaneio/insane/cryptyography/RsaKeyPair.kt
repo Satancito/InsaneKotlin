@@ -25,7 +25,7 @@ class RsaKeyPairSerializer : KSerializer<RsaKeyPair> {
         get() = buildClassSerialDescriptor(RsaKeyPair.serialName) {
             element<String>(RsaKeyPair::publicKey.capitalize())
             element<String>(RsaKeyPair::privateKey.capitalize())
-            element<String>(RsaKeyPair::assemblyName.capitalize())
+            element<String>(RsaKeyPair.Companion::assemblyName.capitalize())
         }
 
     override fun deserialize(decoder: Decoder): RsaKeyPair {
@@ -40,7 +40,7 @@ class RsaKeyPairSerializer : KSerializer<RsaKeyPair> {
         return encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, value.publicKey)
             encodeStringElement(descriptor, 1, value.privateKey)
-            encodeStringElement(descriptor, 2, value.assemblyName)
+            encodeStringElement(descriptor, 2, RsaKeyPair.assemblyName)
         }
     }
 
@@ -64,9 +64,5 @@ class RsaKeyPair(val publicKey: String, val privateKey: String) : IJsonSerializa
         return IJsonSerializable.getJsonFormat(indented).encodeToString(this)
     }
 
-    override val assemblyName: String
-        get() = RsaKeyPair.assemblyName
-    override val serialName: String
-        get() = RsaKeyPair.serialName
 
 }

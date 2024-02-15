@@ -14,17 +14,15 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.*
+import kotlin.reflect.full.companionObject
 
 
 class HexEncoderSerializer : KSerializer<HexEncoder> {
-    companion object {
-        private val instance = HexEncoder()
-    }
 
     override val descriptor: SerialDescriptor
         get() = buildClassSerialDescriptor(HexEncoder.serialName) {
             element(HexEncoder::toUpper.capitalize(), Boolean.serializer().descriptor)
-            element(HexEncoder::assemblyName.capitalize(), String.serializer().descriptor)
+            element(HexEncoder.Companion::assemblyName.capitalize(), String.serializer().descriptor)
         }
 
     override fun deserialize(decoder: Decoder): HexEncoder {
@@ -36,7 +34,7 @@ class HexEncoderSerializer : KSerializer<HexEncoder> {
     override fun serialize(encoder: Encoder, value: HexEncoder) {
         return encoder.encodeStructure(descriptor) {
             encodeBooleanElement(descriptor, 0, value.toUpper)
-            encodeStringElement(descriptor, 1, value.assemblyName)
+            encodeStringElement(descriptor, 1, HexEncoder.assemblyName)
         }
     }
 
@@ -44,7 +42,7 @@ class HexEncoderSerializer : KSerializer<HexEncoder> {
 
 @Serializable(with = HexEncoderSerializer::class)
 class HexEncoder(val toUpper: Boolean = false) : IEncoder {
-    companion object CompanionDefault : ICompanionJsonSerializable<HexEncoder>, ICompanionDefaultInstance<HexEncoder> {
+    companion object : ICompanionJsonSerializable<HexEncoder>, ICompanionDefaultInstance<HexEncoder> {
         override val defaultInstance: HexEncoder = HexEncoder()
 
         override fun deserialize(json: String): HexEncoder {
@@ -74,10 +72,10 @@ class HexEncoder(val toUpper: Boolean = false) : IEncoder {
         return IJsonSerializable.getJsonFormat(indented).encodeToString(this)
     }
 
-    override val assemblyName: String
-        get() = HexEncoder.assemblyName
-    override val serialName: String
-        get() = HexEncoder.serialName
+//    override val assemblyName: String
+//        get() = HexEncoder.assemblyName
+//    override val serialName: String
+//        get() = HexEncoder.serialName
 
 
 }

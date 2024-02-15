@@ -6,7 +6,7 @@ fun String?.isNullOrWhiteSpace(): Boolean {
 
 fun String.padLeft(padding: String, repeatCount: Int): String {
     val sb = StringBuilder()
-    for (i in 0 until repeatCount) {
+    for (i in 0..<repeatCount) {
         sb.append(padding)
     }
     sb.append(this)
@@ -15,7 +15,7 @@ fun String.padLeft(padding: String, repeatCount: Int): String {
 
 fun String.padRight(padding: String, repeatCount: Int): String {
     val sb = StringBuilder(this)
-    for (i in 0 until repeatCount) {
+    for (i in 0..<repeatCount) {
         sb.append(padding)
     }
     return sb.toString()
