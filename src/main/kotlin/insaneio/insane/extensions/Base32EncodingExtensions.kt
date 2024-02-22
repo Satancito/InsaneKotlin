@@ -25,7 +25,7 @@ fun ByteArray.encodeToBase32(removePadding: Boolean = false, toLower: Boolean= f
     requireNotNull(this) { "Data is null." }
 
     val charCount:Int = ceil(this.size / 5.0).toInt() * 8
-    val returnArray:CharArray = CharArray(charCount)
+    val returnArray = CharArray(charCount)
 
     var nextChar = 0.toByte()
     var bitsRemaining = 5

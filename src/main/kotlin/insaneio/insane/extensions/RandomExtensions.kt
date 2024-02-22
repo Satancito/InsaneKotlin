@@ -14,10 +14,10 @@ fun Int.nextValue(max:Int) : Int
     return this + (abs(0.nextValue()) % (max - this + 1))
 }
 
-fun Int.nextBytes():ByteArray
+fun UInt.nextBytes():ByteArray
 {
     val generator = SecureRandom()
-    val bytes :ByteArray = ByteArray(this)
+    val bytes = ByteArray(this.toInt())
     generator.nextBytes(bytes)
     return bytes
 }

@@ -1,7 +1,7 @@
 package insaneio.insane.extensions
 
 import insaneio.insane.*
-import insaneio.insane.cryptyography.*
+import insaneio.insane.cryptography.*
 import org.xml.sax.InputSource
 import java.io.StringReader
 import java.math.BigInteger

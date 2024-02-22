@@ -1,7 +1,9 @@
 package insaneio.insane.extensions
 
 import insaneio.insane.*
-import insaneio.insane.cryptyography.*
+import insaneio.insane.cryptography.*
+import insaneio.insane.cryptography.internal.AesAnsiX923Padding
+import insaneio.insane.cryptography.internal.AesZerosPadding
 import java.security.InvalidParameterException
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -36,7 +38,7 @@ fun ByteArray.encryptAesCbc(key: ByteArray, padding: AesCbcPadding = AesCbcPaddi
     val algorithm = Cipher.getInstance(instance)
     val keyBytes = generateNormalizedKey(key)
     val keySpec = SecretKeySpec(keyBytes, AES_ALGORITHM_STRING)
-    val ivSpec = IvParameterSpec(AES_MAX_IV_LENGTH.toInt().nextBytes())
+    val ivSpec = IvParameterSpec(AES_MAX_IV_LENGTH.nextBytes())
     algorithm.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec)
     return algorithm.doFinal(data).plus(ivSpec.iv)
 }
@@ -85,9 +87,9 @@ fun String.encryptEncodedAesCbc(key: String, encoder: IEncoder, padding: AesCbcP
 }
 
 fun String.decryptEncodedAesCbc(key: ByteArray, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
-    return encoder.decode(this).decryptAesCbc(key, padding);
+    return encoder.decode(this).decryptAesCbc(key, padding)
 }
 
 fun String.decryptEncodedAesCbc(key: String, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
-    return encoder.decode(this).decryptAesCbc(key, padding);
+    return encoder.decode(this).decryptAesCbc(key, padding)
 }

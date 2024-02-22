@@ -1,6 +1,6 @@
-package insaneio.insane.cryptyography
+package insaneio.insane.cryptography.internal
 
-internal object AesZerosPadding : IAesPadding {
+internal data object AesZerosPadding : IAesPadding {
     override fun addPadding(data: ByteArray, blockSize: UInt): ByteArray {
         val paddingLength = blockSize.toInt() - data.size % blockSize.toInt()
         return data.plus(ByteArray(paddingLength))

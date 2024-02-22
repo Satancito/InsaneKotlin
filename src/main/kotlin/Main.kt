@@ -1,23 +1,41 @@
+import insaneio.insane.cryptography.*
+import insaneio.insane.cryptography.internal.IAesPadding
+import insaneio.insane.extensions.getTypeCanonicalName
+import kotlinx.serialization.Serializable
+import kotlin.reflect.full.companionObjectInstance
 
-import insaneio.insane.cryptyography.*
-import insaneio.insane.extensions.*
+//@Serializable
+enum class MyEnum {
+    VALUE1, VALUE2, VALUE3;
+    companion object
+}
 
-import insaneio.insane.serialization.IJsonSerializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-
+//@Serializable
+sealed interface MyInterface{
+    companion object
+}
 fun main() {
 
-    val encoder:IEncoder = Base32Encoder()
 //    println(HexEncoder.deserialize( HexEncoder(true).serialize(true)).serialize(true))
 //    println(Base32Encoder().serialize(true))
 //    println(Base64Encoder().serialize(true))
 //    println(RsaKeyPair("public", "private").serialize(true))
-    //println(ShaHasher(HashAlgorithm.Sha512, encoder).serialize(true))
+    //val json = ShaHasher(HashAlgorithm.Sha384, encoder).serialize(true)
+    //println(json)
 
 
-    return;
+    val encoder: IEncoder = HexEncoder()
+    val indented = false
+    var hasher: IHasher = ShaHasher(encoder = encoder, hashAlgorithm = HashAlgorithm.Sha256)//HmacHasher(encoder = encoder, hashAlgorithm = HashAlgorithm.Sha384)//ShaHasher(encoder, HashAlgorithm.Sha384)
+    var json =hasher.serialize(indented)
+    println(hasher.computeEncoded("grape"))
+    hasher = ShaHasher.deserialize(json)
+    var json2 =hasher.serialize(indented)
+    println(json == json2)
+    println(json)
+    println(json2)
+    println(hasher.computeEncoded("grape"))
+    return
 //    encoder = Json.decodeFromString(json)
 //    println(encoder.assemblyName)
 //    val keypair = 4096U.createRsaKeyPair(RsaKeyPairEncoding.Xml)

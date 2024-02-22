@@ -1,4 +1,4 @@
-package insaneio.insane.cryptyography
+package insaneio.insane.cryptography
 
 import insaneio.insane.serialization.EnumAsIntSerializer
 import kotlinx.serialization.Serializable

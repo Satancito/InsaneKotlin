@@ -2,9 +2,9 @@ package insaneio.insane.extensions
 
 import com.lambdaworks.crypto.SCrypt
 import insaneio.insane.*
-import insaneio.insane.cryptyography.Argon2Variant
-import insaneio.insane.cryptyography.HashAlgorithm
-import insaneio.insane.cryptyography.IEncoder
+import insaneio.insane.cryptography.Argon2Variant
+import insaneio.insane.cryptography.HashAlgorithm
+import insaneio.insane.cryptography.IEncoder
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import org.bouncycastle.crypto.params.Argon2Parameters
 import java.security.MessageDigest
@@ -29,7 +29,7 @@ fun ByteArray.computeHash(algorithm: HashAlgorithm = HashAlgorithm.Sha512):ByteA
 }
 
 fun String.computeHash(algorithm: HashAlgorithm = HashAlgorithm.Sha512):ByteArray{
-    return this.toByteArrayUtf8().computeHash(algorithm);
+    return this.toByteArrayUtf8().computeHash(algorithm)
 }
 
 fun ByteArray.computeEncodedHash(encoder: IEncoder, algorithm: HashAlgorithm = HashAlgorithm.Sha512):String
@@ -63,12 +63,32 @@ fun String.computeHmac(key:String, algorithm: HashAlgorithm = HashAlgorithm.Sha5
     return this.toByteArrayUtf8().computeHmac(key.toByteArrayUtf8(), algorithm)
 }
 
+fun ByteArray.computeHmac(key:String, algorithm: HashAlgorithm = HashAlgorithm.Sha512):ByteArray
+{
+    return this.computeHmac(key.toByteArrayUtf8(), algorithm)
+}
+
+fun String.computeHmac(key:ByteArray, algorithm: HashAlgorithm = HashAlgorithm.Sha512):ByteArray
+{
+    return this.toByteArrayUtf8().computeHmac(key, algorithm)
+}
+
 fun ByteArray.computeEncodedHmac(key:ByteArray, encoder: IEncoder, algorithm: HashAlgorithm = HashAlgorithm.Sha512):String
 {
     return encoder.encode(this.computeHmac(key,algorithm))
 }
 
 fun String.computeEncodedHmac(key:String, encoder: IEncoder, algorithm: HashAlgorithm = HashAlgorithm.Sha512):String
+{
+    return encoder.encode(this.computeHmac(key,algorithm))
+}
+
+fun ByteArray.computeEncodedHmac(key:String, encoder: IEncoder, algorithm: HashAlgorithm = HashAlgorithm.Sha512):String
+{
+    return encoder.encode(this.computeHmac(key,algorithm))
+}
+
+fun String.computeEncodedHmac(key:ByteArray, encoder: IEncoder, algorithm: HashAlgorithm = HashAlgorithm.Sha512):String
 {
     return encoder.encode(this.computeHmac(key,algorithm))
 }
@@ -88,11 +108,27 @@ fun String.computeScrypt(salt:String, iterations:UInt= SCRYPT_ITERATIONS, blockS
     return this.toByteArrayUtf8().computeScrypt(salt.toByteArrayUtf8(), iterations,blockSize, parallelism, derivedKeyLength)
 }
 
+fun ByteArray.computeScrypt(salt:String, iterations:UInt= SCRYPT_ITERATIONS, blockSize: UInt = SCRYPT_BLOCK_SIZE, parallelism: UInt= SCRYPT_PARALLELISM, derivedKeyLength:UInt= SCRYPT_DERIVED_KEY_LENGTH): ByteArray{
+    return this.computeScrypt(salt.toByteArrayUtf8(), iterations,blockSize, parallelism, derivedKeyLength)
+}
+
+fun String.computeScrypt(salt:ByteArray, iterations:UInt= SCRYPT_ITERATIONS, blockSize: UInt = SCRYPT_BLOCK_SIZE, parallelism: UInt= SCRYPT_PARALLELISM, derivedKeyLength:UInt= SCRYPT_DERIVED_KEY_LENGTH): ByteArray{
+    return this.toByteArrayUtf8().computeScrypt(salt, iterations,blockSize, parallelism, derivedKeyLength)
+}
+
 fun ByteArray.computeEncodedScrypt(salt:ByteArray, encoder: IEncoder, iterations:UInt= SCRYPT_ITERATIONS, blockSize: UInt = SCRYPT_BLOCK_SIZE, parallelism: UInt= SCRYPT_PARALLELISM, derivedKeyLength:UInt= SCRYPT_DERIVED_KEY_LENGTH): String {
     return encoder.encode(this.computeScrypt(salt, iterations,blockSize,parallelism,derivedKeyLength))
 }
 
 fun String.computeEncodedScrypt(salt:String, encoder: IEncoder, iterations:UInt= SCRYPT_ITERATIONS, blockSize: UInt = SCRYPT_BLOCK_SIZE, parallelism: UInt= SCRYPT_PARALLELISM, derivedKeyLength:UInt= SCRYPT_DERIVED_KEY_LENGTH): String {
+    return encoder.encode(this.computeScrypt(salt, iterations,blockSize,parallelism,derivedKeyLength))
+}
+
+fun ByteArray.computeEncodedScrypt(salt:String, encoder: IEncoder, iterations:UInt= SCRYPT_ITERATIONS, blockSize: UInt = SCRYPT_BLOCK_SIZE, parallelism: UInt= SCRYPT_PARALLELISM, derivedKeyLength:UInt= SCRYPT_DERIVED_KEY_LENGTH): String {
+    return encoder.encode(this.computeScrypt(salt, iterations,blockSize,parallelism,derivedKeyLength))
+}
+
+fun String.computeEncodedScrypt(salt:ByteArray, encoder: IEncoder, iterations:UInt= SCRYPT_ITERATIONS, blockSize: UInt = SCRYPT_BLOCK_SIZE, parallelism: UInt= SCRYPT_PARALLELISM, derivedKeyLength:UInt= SCRYPT_DERIVED_KEY_LENGTH): String {
     return encoder.encode(this.computeScrypt(salt, iterations,blockSize,parallelism,derivedKeyLength))
 }
 
@@ -111,9 +147,9 @@ fun ByteArray.computeArgon2(salt:ByteArray, iterations:UInt= ARGON2_ITERATIONS, 
         .withParallelism(parallelism.toInt())
         .withSalt(salt)
         .build()
-    val generator: Argon2BytesGenerator = Argon2BytesGenerator()
+    val generator = Argon2BytesGenerator()
     generator.init(parameters)
-    val result:ByteArray = ByteArray(derivedKeyLength.toInt())
+    val result = ByteArray(derivedKeyLength.toInt())
     generator.generateBytes(this, result)
     return result
 }
@@ -122,10 +158,26 @@ fun String.computeArgon2(salt:String, iterations:UInt= ARGON2_ITERATIONS, memory
     return this.toByteArrayUtf8().computeArgon2(salt.toByteArrayUtf8(), iterations,memorySizeKiB, parallelism, variant, derivedKeyLength)
 }
 
+fun ByteArray.computeArgon2(salt:String, iterations:UInt= ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, parallelism: UInt= ARGON2_DEGREE_OF_PARALLELISM, variant: Argon2Variant = Argon2Variant.Argon2id, derivedKeyLength:UInt= ARGON2_DERIVED_KEY_LENGTH): ByteArray{
+    return this.computeArgon2(salt.toByteArrayUtf8(), iterations,memorySizeKiB, parallelism, variant, derivedKeyLength)
+}
+
+fun String.computeArgon2(salt:ByteArray, iterations:UInt= ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, parallelism: UInt= ARGON2_DEGREE_OF_PARALLELISM, variant: Argon2Variant = Argon2Variant.Argon2id, derivedKeyLength:UInt= ARGON2_DERIVED_KEY_LENGTH): ByteArray{
+    return this.toByteArrayUtf8().computeArgon2(salt, iterations,memorySizeKiB, parallelism, variant, derivedKeyLength)
+}
+
 fun ByteArray.computeEncodedArgon2(salt:ByteArray, encoder: IEncoder, iterations:UInt= ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, parallelism: UInt= ARGON2_DEGREE_OF_PARALLELISM, variant: Argon2Variant = Argon2Variant.Argon2id, derivedKeyLength:UInt= ARGON2_DERIVED_KEY_LENGTH): String {
     return encoder.encode(this.computeArgon2(salt, iterations,memorySizeKiB, parallelism, variant, derivedKeyLength))
 }
 
 fun String.computeEncodedArgon2(salt:String, encoder: IEncoder, iterations:UInt= ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, parallelism: UInt= ARGON2_DEGREE_OF_PARALLELISM, variant: Argon2Variant = Argon2Variant.Argon2id, derivedKeyLength:UInt= ARGON2_DERIVED_KEY_LENGTH): String {
+    return encoder.encode(this.computeArgon2(salt, iterations,memorySizeKiB, parallelism, variant, derivedKeyLength))
+}
+
+fun ByteArray.computeEncodedArgon2(salt:String, encoder: IEncoder, iterations:UInt= ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, parallelism: UInt= ARGON2_DEGREE_OF_PARALLELISM, variant: Argon2Variant = Argon2Variant.Argon2id, derivedKeyLength:UInt= ARGON2_DERIVED_KEY_LENGTH): String {
+    return encoder.encode(this.computeArgon2(salt, iterations,memorySizeKiB, parallelism, variant, derivedKeyLength))
+}
+
+fun String.computeEncodedArgon2(salt:ByteArray, encoder: IEncoder, iterations:UInt= ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, parallelism: UInt= ARGON2_DEGREE_OF_PARALLELISM, variant: Argon2Variant = Argon2Variant.Argon2id, derivedKeyLength:UInt= ARGON2_DERIVED_KEY_LENGTH): String {
     return encoder.encode(this.computeArgon2(salt, iterations,memorySizeKiB, parallelism, variant, derivedKeyLength))
 }

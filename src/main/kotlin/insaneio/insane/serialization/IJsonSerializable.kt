@@ -8,10 +8,10 @@ interface IJsonSerializable {
         private val jsonConfigIndented: Json = Json { prettyPrint = true }
         private val jsonConfigNoIndented: Json = Json { prettyPrint = false }
         fun getJsonFormat(indented: Boolean = false): Json = if (indented) jsonConfigIndented else jsonConfigNoIndented
+
+
     }
 
     fun serialize(indented: Boolean = false): String
 
-//    val assemblyName: String
-//    val serialName: String
 }
