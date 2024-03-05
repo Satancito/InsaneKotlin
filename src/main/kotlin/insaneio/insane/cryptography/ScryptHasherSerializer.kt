@@ -29,8 +29,7 @@ class ScryptHasherSerializer: KSerializer<ScryptHasher>
 
     override fun deserialize(decoder: Decoder): ScryptHasher {
         val jsonObject = decoder.decodeSerializableValue(JsonObject.serializer())
-        val assemblyName = Json.decodeFromJsonElement<String>(jsonObject[ScryptHasher::encoder.capitalizeName()]!!.jsonObject[ScryptHasher.Companion::assemblyName.capitalizeName()]!!)
-        val encoderSerializer = IBaseSerializable.getKSerializer(IBaseSerializable.getCanonicalName(assemblyName))
+        val encoderSerializer = IBaseSerializable.getKSerializer(jsonObject, listOf(ScryptHasher::encoder.capitalizeName(), ScryptHasher.Companion::assemblyName.capitalizeName()))
         val encoder = Json.decodeFromJsonElement(encoderSerializer, jsonObject[ScryptHasher::encoder.capitalizeName()]!!) as IEncoder
         val salt = encoder.decode(Json.decodeFromJsonElement<String>(jsonObject[ScryptHasher::salt.capitalizeName()]!!))
         val iterations = Json.decodeFromJsonElement<UInt>(jsonObject[ScryptHasher::iterations.capitalizeName()]!!)

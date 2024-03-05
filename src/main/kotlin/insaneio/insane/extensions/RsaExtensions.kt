@@ -33,8 +33,8 @@ private fun ByteArray.toBigIntegerWithSignBit(): BigInteger {
 }
 
 fun UInt.createRsaKeyPair(encoding: RsaKeyPairEncoding = RsaKeyPairEncoding.Ber): RsaKeyPair {
-    val keyPairGenerator = KeyPairGenerator.getInstance(RSA_ALGORITHM_STRING)
-    val keyFactory: KeyFactory = KeyFactory.getInstance(RSA_ALGORITHM_STRING)
+    val keyPairGenerator = KeyPairGenerator.getInstance(RSA_ALGORITHM)
+    val keyFactory: KeyFactory = KeyFactory.getInstance(RSA_ALGORITHM)
     keyPairGenerator.initialize(this.toInt(), SecureRandom())
     val keyPair = keyPairGenerator.generateKeyPair()
     val encoder = Base64Encoder.defaultInstance
@@ -93,10 +93,10 @@ private val rsaXmlPrivateKeyRegex = Regex(RSA_XML_PRIVATE_KEY_REGEX_PATTERN)
 private val rsaPemPublicKeyRegex = Regex(RSA_PEM_PUBLIC_KEY_REGEX_PATTERN)
 private val rsaPemPrivateKeyRegex = Regex(RSA_PEM_PRIVATE_KEY_REGEX_PATTERN)
 
-//
+
 internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
     val keyString = this.trim()
-    val keyFactory: KeyFactory = KeyFactory.getInstance(RSA_ALGORITHM_STRING)
+    val keyFactory: KeyFactory = KeyFactory.getInstance(RSA_ALGORITHM)
     val encoder = Base64Encoder.defaultInstance
     if (base64ValueRegex.matches(keyString)) {
         return try {
@@ -204,18 +204,27 @@ internal fun parsePrivateKey(privateKey: String): Key {
     }
 }
 
+internal fun getRsaCipherParameters(padding: RsaPadding): Pair<String, OAEPParameterSpec?> {
+    return when (padding) {
+        RsaPadding.Pkcs1 -> Pair(RSA_PADDING_PKCS1, null as OAEPParameterSpec?)
+        RsaPadding.OaepSha1 -> Pair(RSA_PADDING_OAEP_SHA1, OAEPParameterSpec( SHA1_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT))
+        RsaPadding.OaepSha256 -> Pair(RSA_PADDING_OAEP_SHA256, OAEPParameterSpec(SHA256_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT))
+        RsaPadding.OaepSha384 -> Pair(RSA_PADDING_OAEP_SHA384, OAEPParameterSpec(SHA384_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA384, PSource.PSpecified.DEFAULT))
+        RsaPadding.OaepSha512 -> Pair(RSA_PADDING_OAEP_SHA512, OAEPParameterSpec(SHA512_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA512, PSource.PSpecified.DEFAULT))
+    }
+}
 fun ByteArray.encryptRsa(publicKey: String, padding: RsaPadding = RsaPadding.OaepSha256): ByteArray {
     val key = parsePublicKey(publicKey)
-    val paddingValue = when (padding) {
-        RsaPadding.Pkcs1 -> RSA_PADDING_PKCS1
-        RsaPadding.OaepSha1 -> RSA_PADDING_OAEP_SHA1
-        RsaPadding.OaepSha256 -> RSA_PADDING_OAEP_SHA256
-        RsaPadding.OaepSha384 -> RSA_PADDING_OAEP_SHA384
-        RsaPadding.OaepSha512 -> RSA_PADDING_OAEP_SHA512
+    val (rsaPadding: String, oaepParameterSpec: OAEPParameterSpec?) = getRsaCipherParameters(padding)
+    val cipher = Cipher.getInstance("$RSA_ALGORITHM/$RSA_ECB_MODE_NAME/${rsaPadding}")
+    if(oaepParameterSpec == null)
+    {
+        cipher.init(Cipher.ENCRYPT_MODE, key)
     }
-    val cipher = Cipher.getInstance("$RSA_ALGORITHM_STRING/ECB/$paddingValue")
-    val oaepSpec = OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)
-    cipher.init(Cipher.ENCRYPT_MODE, key, oaepSpec)
+    else
+    {
+        cipher.init(Cipher.ENCRYPT_MODE, key, oaepParameterSpec)
+    }
     return cipher.doFinal(this)
 }
 
@@ -233,15 +242,16 @@ fun String.encryptEncodedRsa(publicKey: String, encoder: IEncoder, padding: RsaP
 
 fun ByteArray.decryptRsa(privateKey: String, padding: RsaPadding = RsaPadding.OaepSha256): ByteArray {
     val key = parsePrivateKey(privateKey)
-    val paddingValue = when (padding) {
-        RsaPadding.Pkcs1 -> RSA_PADDING_PKCS1
-        RsaPadding.OaepSha1 -> RSA_PADDING_OAEP_SHA1
-        RsaPadding.OaepSha256 -> RSA_PADDING_OAEP_SHA256
-        RsaPadding.OaepSha384 -> RSA_PADDING_OAEP_SHA384
-        RsaPadding.OaepSha512 -> RSA_PADDING_OAEP_SHA512
+    val (rsaPadding: String, oaepParameterSpec: OAEPParameterSpec?) = getRsaCipherParameters(padding)
+    val cipher = Cipher.getInstance("$RSA_ALGORITHM/$RSA_ECB_MODE_NAME/$rsaPadding")
+    if(oaepParameterSpec == null)
+    {
+        cipher.init(Cipher.DECRYPT_MODE, key)
     }
-    val cipher = Cipher.getInstance("$RSA_ALGORITHM_STRING/ECB/$paddingValue")
-    cipher.init(Cipher.DECRYPT_MODE, key)
+    else
+    {
+        cipher.init(Cipher.DECRYPT_MODE, key, oaepParameterSpec)
+    }
     return cipher.doFinal(this)
 }
 

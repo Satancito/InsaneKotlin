@@ -17,10 +17,10 @@ fun ByteArray.computeHash(algorithm: HashAlgorithm = HashAlgorithm.Sha512):ByteA
     val algo = when(algorithm)
     {
         HashAlgorithm.Md5 -> MD5_ALGORITHM_NAME_STRING
-        HashAlgorithm.Sha1 -> SHA1_ALGORITHM_NAME_STRING
-        HashAlgorithm.Sha256 -> SHA256_ALGORITHM_NAME_STRING
-        HashAlgorithm.Sha384 -> SHA384_ALGORITHM_NAME_STRING
-        HashAlgorithm.Sha512 -> SHA512_ALGORITHM_NAME_STRING
+        HashAlgorithm.Sha1 -> SHA1_ALGORITHM_NAME
+        HashAlgorithm.Sha256 -> SHA256_ALGORITHM_NAME
+        HashAlgorithm.Sha384 -> SHA384_ALGORITHM_NAME
+        HashAlgorithm.Sha512 -> SHA512_ALGORITHM_NAME
     }
     val messageDigest = MessageDigest.getInstance(algo)
     messageDigest.reset()

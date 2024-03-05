@@ -30,8 +30,7 @@ class Argon2HasherSerializer : KSerializer<Argon2Hasher> {
 
     override fun deserialize(decoder: Decoder): Argon2Hasher {
         val jsonObject = decoder.decodeSerializableValue(JsonObject.serializer())
-        val assemblyName = Json.decodeFromJsonElement<String>(jsonObject[Argon2Hasher::encoder.capitalizeName()]!!.jsonObject[Argon2Hasher.Companion::assemblyName.capitalizeName()]!!)
-        val encoderSerializer = IBaseSerializable.getKSerializer(IBaseSerializable.getCanonicalName(assemblyName))
+        val encoderSerializer = IBaseSerializable.getKSerializer(jsonObject, listOf(Argon2Hasher::encoder.capitalizeName(), Argon2Hasher.Companion::assemblyName.capitalizeName()))
         val encoder = Json.decodeFromJsonElement(encoderSerializer, jsonObject[Argon2Hasher::encoder.capitalizeName()]!!) as IEncoder
         val salt = encoder.decode(Json.decodeFromJsonElement<String>(jsonObject[Argon2Hasher::salt.capitalizeName()]!!))
         val iterations = Json.decodeFromJsonElement<UInt>(jsonObject[Argon2Hasher::iterations.capitalizeName()]!!)

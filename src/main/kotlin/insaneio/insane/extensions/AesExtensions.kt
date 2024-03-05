@@ -43,9 +43,18 @@ fun ByteArray.encryptAesCbc(key: ByteArray, padding: AesCbcPadding = AesCbcPaddi
     return algorithm.doFinal(data).plus(ivSpec.iv)
 }
 
+fun ByteArray.encryptAesCbc(key: String, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
+    return this.encryptAesCbc(key.toByteArrayUtf8(), padding)
+}
+
 fun String.encryptAesCbc(key: String, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
     return this.toByteArrayUtf8().encryptAesCbc(key.toByteArrayUtf8(), padding)
 }
+
+fun String.encryptAesCbc(key: ByteArray, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
+    return this.toByteArrayUtf8().encryptAesCbc(key, padding)
+}
+
 
 fun ByteArray.decryptAesCbc(key: ByteArray, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
     if (key.size < 8) throw InvalidParameterException("Key must be at least 8 bytes.")
@@ -79,6 +88,14 @@ fun ByteArray.decryptAesCbc(key: String, padding: AesCbcPadding = AesCbcPadding.
 }
 
 fun ByteArray.encryptEncodedAesCbc(key: ByteArray, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): String {
+    return encoder.encode(this.encryptAesCbc(key, padding))
+}
+
+fun ByteArray.encryptEncodedAesCbc(key: String, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): String {
+    return encoder.encode(this.encryptAesCbc(key, padding))
+}
+
+fun String.encryptEncodedAesCbc(key: ByteArray, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): String {
     return encoder.encode(this.encryptAesCbc(key, padding))
 }
 

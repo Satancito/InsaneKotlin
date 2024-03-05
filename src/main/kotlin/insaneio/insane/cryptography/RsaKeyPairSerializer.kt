@@ -8,7 +8,9 @@ import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
 class RsaKeyPairSerializer : KSerializer<RsaKeyPair> {
@@ -21,7 +23,9 @@ class RsaKeyPairSerializer : KSerializer<RsaKeyPair> {
 
     override fun deserialize(decoder: Decoder): RsaKeyPair {
         val jsonObject = decoder.decodeSerializableValue(JsonObject.serializer())
-        return RsaKeyPair(jsonObject[RsaKeyPair::publicKey.capitalizeName()]!!.jsonPrimitive.toString(), jsonObject[RsaKeyPair::privateKey.capitalizeName()]!!.jsonPrimitive.toString())
+        val publicKey = Json.decodeFromJsonElement<String>(jsonObject[RsaKeyPair::publicKey.capitalizeName()]!!)
+        val privateKey = Json.decodeFromJsonElement<String>(jsonObject[RsaKeyPair::privateKey.capitalizeName()]!!)
+        return RsaKeyPair(publicKey, privateKey)
     }
 
     override fun serialize(encoder: Encoder, value: RsaKeyPair) {
