@@ -59,7 +59,7 @@ fun String.encryptAesCbc(key: ByteArray, padding: AesCbcPadding = AesCbcPadding.
 fun ByteArray.decryptAesCbc(key: ByteArray, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
     if (key.size < 8) throw InvalidParameterException("Key must be at least 8 bytes.")
     var data = this.take(this.size - AES_MAX_IV_LENGTH.toInt()).toByteArray()
-    var iv = this.takeLast(AES_MAX_IV_LENGTH.toInt()).toByteArray()
+    val iv = this.takeLast(AES_MAX_IV_LENGTH.toInt()).toByteArray()
 
     val instance = when (padding) {
         AesCbcPadding.None -> AES_CBC_NO_PADDING_INSTANCE_STRING
@@ -91,6 +91,7 @@ fun ByteArray.encryptEncodedAesCbc(key: ByteArray, encoder: IEncoder, padding: A
     return encoder.encode(this.encryptAesCbc(key, padding))
 }
 
+@Suppress("unused")
 fun ByteArray.encryptEncodedAesCbc(key: String, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): String {
     return encoder.encode(this.encryptAesCbc(key, padding))
 }
@@ -99,6 +100,7 @@ fun String.encryptEncodedAesCbc(key: ByteArray, encoder: IEncoder, padding: AesC
     return encoder.encode(this.encryptAesCbc(key, padding))
 }
 
+@Suppress("unused")
 fun String.encryptEncodedAesCbc(key: String, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): String {
     return encoder.encode(this.encryptAesCbc(key, padding))
 }
@@ -107,6 +109,7 @@ fun String.decryptEncodedAesCbc(key: ByteArray, encoder: IEncoder, padding: AesC
     return encoder.decode(this).decryptAesCbc(key, padding)
 }
 
+@Suppress("unused")
 fun String.decryptEncodedAesCbc(key: String, encoder: IEncoder, padding: AesCbcPadding = AesCbcPadding.Pkcs7): ByteArray {
     return encoder.decode(this).decryptAesCbc(key, padding)
 }

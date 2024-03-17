@@ -11,7 +11,6 @@ import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonPrimitive
 
 class RsaKeyPairSerializer : KSerializer<RsaKeyPair> {
     override val descriptor: SerialDescriptor

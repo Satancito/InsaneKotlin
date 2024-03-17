@@ -14,7 +14,7 @@ fun String.insertLineBreaks(lineBreaksLength: UInt): String {
         this
     } else {
         val sb = StringBuilder()
-        for (i in 0 until segments) {
+        for (i in 0..<segments) {
             sb.append(this.substring(i * breakLength, i * breakLength + breakLength))
             sb.append(System.lineSeparator())
         }
@@ -31,6 +31,7 @@ fun ByteArray.encodeToBase64(lineBreaksLength: UInt = BASE64_NO_LINE_BREAKS_LENG
     return if (removePadding) result.replace(EQUAL_SIGN_STRING, EMPTY_STRING) else result
 }
 
+@Suppress("unused")
 fun String.encodeToBase64(lineBreaksLength: UInt = BASE64_NO_LINE_BREAKS_LENGTH, removePadding: Boolean = false): String {
     return this.toByteArrayUtf8().encodeToBase64(lineBreaksLength, removePadding)
 }
@@ -42,6 +43,7 @@ fun ByteArray.encodeToUrlSafeBase64(): String {
         .replace(EQUAL_SIGN_STRING, EMPTY_STRING)
 }
 
+@Suppress("unused")
 fun String.encodeToUrlSafeBase64(): String {
     return this.toByteArrayUtf8().encodeToUrlSafeBase64()
 }
@@ -50,6 +52,7 @@ fun ByteArray.encodeToFilenameSafeBase64(): String {
     return this.encodeToUrlSafeBase64()
 }
 
+@Suppress("unused")
 fun String.encodeToFilenameSafeBase64(): String {
     return this.encodeToFilenameSafeBase64()
 }
@@ -61,6 +64,7 @@ fun ByteArray.encodeToUrlEncodedBase64(): String {
         .replace(EQUAL_SIGN_STRING, URL_ENCODED_EQUAL_SIGN_STRING)
 }
 
+@Suppress("unused")
 fun String.encodeToUrlEncodedBase64(): String {
     return this.toByteArrayUtf8().encodeToUrlEncodedBase64()
 }
@@ -79,15 +83,17 @@ fun String.decodeFromBase64(): ByteArray {
     return Base64.getDecoder().decode(result)
 }
 
+@Suppress("unused")
 fun String.encodeBase64ToUrlSafeBase64(): String {
     return this.decodeFromBase64().encodeToUrlSafeBase64()
 }
 
+@Suppress("unused")
 fun String.encodeBase64ToFilenameSafeBase64(): String {
     return this.decodeFromBase64().encodeToFilenameSafeBase64()
 }
 
-//@Throws(Exception::class)
+@Suppress("unused")
 fun String.encodeBase64ToUrlEncodedBase64(): String {
     return this.decodeFromBase64().encodeToUrlEncodedBase64()
 }

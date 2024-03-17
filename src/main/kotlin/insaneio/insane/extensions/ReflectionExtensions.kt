@@ -13,11 +13,13 @@ fun KClass<*>.getTypeCanonicalName():String
     return this.java.canonicalName
 }
 
-fun KClass<*>.getTypeSimnpleName():String
+@Suppress("unused")
+fun KClass<*>.getTypeSimpleName():String
 {
     return this.java.simpleName
 }
 
+@Suppress("unused")
 fun KClass<*>.getTypePackageName():String
 {
     return this.java.`package`.name

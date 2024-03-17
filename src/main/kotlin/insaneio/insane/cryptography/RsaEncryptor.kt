@@ -5,7 +5,7 @@ import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
 import insaneio.insane.extensions.*
 import insaneio.insane.serialization.IBaseSerializable
 import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
-import insaneio.insane.serialization.ICompanionJsonDeserializable
+import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -19,7 +19,6 @@ import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonObject
 import kotlin.reflect.KClass
 
 class RsaEncryptorSerializer:KSerializer<RsaEncryptor>
@@ -54,7 +53,7 @@ class RsaEncryptorSerializer:KSerializer<RsaEncryptor>
 @Serializable(with = RsaEncryptorSerializer::class)
 class RsaEncryptor(val keyPair: RsaKeyPair, val encoder: IEncoder = Base64Encoder.defaultInstance, val padding: RsaPadding= RsaPadding.OaepSha256):IEncryptor {
 
-    companion object:ICompanionJsonDeserializable<RsaEncryptor>
+    companion object:ICompanionJsonSerializable<RsaEncryptor>
     {
         override val assemblyClass: KClass<RsaEncryptor> = RsaEncryptor::class
         override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)

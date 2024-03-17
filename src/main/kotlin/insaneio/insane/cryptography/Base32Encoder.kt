@@ -6,9 +6,8 @@ import insaneio.insane.extensions.decodeFromBase32
 import insaneio.insane.extensions.encodeToBase32
 import insaneio.insane.extensions.getTypeCanonicalName
 import insaneio.insane.extensions.toByteArrayUtf8
-import insaneio.insane.serialization.IBaseSerializable
 import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
-import insaneio.insane.serialization.ICompanionJsonDeserializable
+import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -17,7 +16,7 @@ import kotlin.reflect.KClass
 
 @Serializable(with = Base32EncoderSerializer::class)
 class Base32Encoder(val removePadding: Boolean = false, val toLower: Boolean = false) : IEncoder {
-    companion object : ICompanionJsonDeserializable<Base32Encoder>, ICompanionDefaultInstance<Base32Encoder> {
+    companion object : ICompanionJsonSerializable<Base32Encoder>, ICompanionDefaultInstance<Base32Encoder> {
         override val assemblyClass: KClass<Base32Encoder> = Base32Encoder::class
         override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
         override val serialName: String = assemblyClass.getTypeCanonicalName()

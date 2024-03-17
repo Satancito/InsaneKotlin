@@ -1,9 +1,11 @@
 package insaneio.insane.extensions
 
+@Suppress("unused")
 fun String?.isNullOrWhiteSpace(): Boolean {
     return this?.trim { it <= ' ' }?.isEmpty() ?: true
 }
 
+@Suppress("unused")
 fun String.padLeft(padding: String, repeatCount: Int): String {
     val sb = StringBuilder()
     for (i in 0..<repeatCount) {

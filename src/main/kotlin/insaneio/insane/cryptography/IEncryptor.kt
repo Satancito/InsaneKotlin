@@ -1,7 +1,6 @@
 package insaneio.insane.cryptography
 
 import insaneio.insane.serialization.IJsonSerializable
-import kotlin.reflect.jvm.internal.impl.builtins.StandardNames.FqNames.string
 
 
 interface IEncryptor: IJsonSerializable {

@@ -2,7 +2,7 @@ package insaneio.insane.serialization
 
 import kotlin.reflect.KClass
 
-interface ICompanionJsonDeserializable<T : Any> {
+interface ICompanionJsonSerializable<T : Any> {
 
     val assemblyClass: KClass<T>
     val assemblyName: String

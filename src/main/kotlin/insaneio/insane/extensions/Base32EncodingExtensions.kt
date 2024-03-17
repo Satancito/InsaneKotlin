@@ -59,6 +59,7 @@ fun ByteArray.encodeToBase32(removePadding: Boolean = false, toLower: Boolean= f
 
 }
 
+@Suppress("unused")
 fun String.encodeToBase32(removePadding: Boolean = false, toLower: Boolean = false): String {
     return this.toByteArrayUtf8().encodeToBase32(removePadding, toLower)
 }

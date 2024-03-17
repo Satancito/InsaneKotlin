@@ -164,6 +164,7 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
     return Pair(RsaKeyEncoding.Unknown, null)
 }
 
+@Suppress("unused")
 fun String.getRsaKeyEncoding(): RsaKeyEncoding {
     return this.getRsaKeyEncodingWithKey().first
 }
@@ -178,10 +179,12 @@ internal fun String.validateRsaPrivateKeyWithKey(): Pair<Boolean, Key?> {
     return Pair(encodingResult.first == RsaKeyEncoding.XmlPrivate || encodingResult.first == RsaKeyEncoding.PemPrivate || encodingResult.first == RsaKeyEncoding.BerPrivate, encodingResult.second)
 }
 
+@Suppress("unused")
 fun String.validateRsaPublicKey(): Boolean {
     return this.validateRsaPublicKeyWithKey().first
 }
 
+@Suppress("unused")
 fun String.validateRsaPrivateKey(): Boolean {
     return this.validateRsaPrivateKeyWithKey().first
 }

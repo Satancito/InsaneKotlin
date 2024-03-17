@@ -5,9 +5,8 @@ import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
 import insaneio.insane.extensions.computeEncodedHash
 import insaneio.insane.extensions.computeHash
 import insaneio.insane.extensions.getTypeCanonicalName
-import insaneio.insane.serialization.IBaseSerializable
 import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
-import insaneio.insane.serialization.ICompanionJsonDeserializable
+import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -17,7 +16,7 @@ import kotlin.reflect.KClass
 @Serializable(with = ShaHasherSerializer::class)
 class ShaHasher(val encoder: IEncoder = Base64Encoder.defaultInstance, val hashAlgorithm: HashAlgorithm = HashAlgorithm.Sha512) : IHasher {
 
-    companion object : ICompanionJsonDeserializable<ShaHasher> {
+    companion object : ICompanionJsonSerializable<ShaHasher> {
         override val assemblyClass: KClass<ShaHasher> = ShaHasher::class
         override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
         override val serialName: String = assemblyClass.getTypeCanonicalName()
@@ -56,10 +55,10 @@ class ShaHasher(val encoder: IEncoder = Base64Encoder.defaultInstance, val hashA
     }
 
     override fun verifyEncoded(data: ByteArray, expected: String): Boolean {
-        return computeEncoded(data) == expected
+        return computeEncoded(data) .contentEquals(expected)
     }
 
     override fun verifyEncoded(data: String, expected: String): Boolean {
-        return computeEncoded(data) == expected
+        return computeEncoded(data) .contentEquals(expected)
     }
 }

@@ -2,9 +2,8 @@ package insaneio.insane.cryptography
 
 import insaneio.insane.*
 import insaneio.insane.extensions.*
-import insaneio.insane.serialization.IBaseSerializable
 import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
-import insaneio.insane.serialization.ICompanionJsonDeserializable
+import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -20,7 +19,7 @@ class Argon2Hasher(val salt: ByteArray = ARGON2_SALT_SIZE.nextBytes(), val encod
     @Suppress("unused")
     constructor(salt: String, encoder: IEncoder = Base64Encoder.defaultInstance, iterations: UInt = ARGON2_ITERATIONS, memorySizeKiB: UInt = ARGON2_MEMORY_SIZE_IN_KIB, degreeOfParallelism: UInt = ARGON2_DEGREE_OF_PARALLELISM, derivedKeyLength: UInt = ARGON2_DERIVED_KEY_LENGTH, argon2Variant: Argon2Variant = Argon2Variant.Argon2id) : this(salt.toByteArrayUtf8(), encoder, iterations, memorySizeKiB, degreeOfParallelism, derivedKeyLength, argon2Variant)
 
-    companion object : ICompanionJsonDeserializable<Argon2Hasher> {
+    companion object : ICompanionJsonSerializable<Argon2Hasher> {
         override val assemblyClass: KClass<Argon2Hasher> = Argon2Hasher::class
         override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
         override val serialName: String = assemblyClass.getTypeCanonicalName()
@@ -55,11 +54,11 @@ class Argon2Hasher(val salt: ByteArray = ARGON2_SALT_SIZE.nextBytes(), val encod
     }
 
     override fun verifyEncoded(data: ByteArray, expected: String): Boolean {
-        return computeEncoded(data) == expected
+        return computeEncoded(data) .contentEquals(expected)
     }
 
     override fun verifyEncoded(data: String, expected: String): Boolean {
-        return computeEncoded(data) == expected
+        return computeEncoded(data) .contentEquals(expected)
     }
 
     override fun serialize(indented: Boolean): String {

@@ -5,7 +5,7 @@ import insaneio.insane.INSANE_ASSEMBLY_NAME
 import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
 import insaneio.insane.extensions.*
 import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
-import insaneio.insane.serialization.ICompanionJsonDeserializable
+import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -20,7 +20,7 @@ class AesCbcEncryptor(val key:ByteArray = AES_MAX_KEY_LENGTH.nextBytes(), val en
     @Suppress("unused")
     constructor(key:String, encoder:IEncoder = Base64Encoder.defaultInstance, padding: AesCbcPadding =  AesCbcPadding.Pkcs7):this(key.toByteArrayUtf8(), encoder, padding)
 
-    companion object: ICompanionJsonDeserializable<AesCbcEncryptor>{
+    companion object: ICompanionJsonSerializable<AesCbcEncryptor>{
         override val assemblyClass: KClass<AesCbcEncryptor> = AesCbcEncryptor::class
         override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
         override val serialName: String = assemblyClass.getTypeCanonicalName()

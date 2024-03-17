@@ -9,6 +9,7 @@ fun Int.nextValue():Int
     return generator.nextInt() xor this
 }
 
+@Suppress("unused")
 fun Int.nextValue(max:Int) : Int
 {
     return this + (abs(0.nextValue()) % (max - this + 1))
