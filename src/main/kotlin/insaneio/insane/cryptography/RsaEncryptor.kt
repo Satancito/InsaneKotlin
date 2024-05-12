@@ -66,27 +66,27 @@ class RsaEncryptor(val keyPair: RsaKeyPair, val encoder: IEncoder = Base64Encode
     }
 
     override fun encrypt(data: ByteArray): ByteArray {
-        return data.encryptRsa(keyPair.publicKey, padding)
+        return data.encryptRsa(keyPair.publicKey!!, padding)
     }
 
     override fun encrypt(data: String): ByteArray {
-        return data.encryptRsa(keyPair.publicKey, padding)
+        return data.encryptRsa(keyPair.publicKey!!, padding)
     }
 
     override fun encryptEncoded(data: ByteArray): String {
-        return data.encryptEncodedRsa(keyPair.publicKey, encoder, padding)
+        return data.encryptEncodedRsa(keyPair.publicKey!!, encoder, padding)
     }
 
     override fun encryptEncoded(data: String): String {
-        return data.encryptEncodedRsa(keyPair.publicKey, encoder, padding)
+        return data.encryptEncodedRsa(keyPair.publicKey!!, encoder, padding)
     }
 
     override fun decrypt(data: ByteArray): ByteArray {
-        return data.decryptRsa(keyPair.privateKey, padding)
+        return data.decryptRsa(keyPair.privateKey!!, padding)
     }
 
     override fun decryptEncoded(data: String): ByteArray {
-        return data.decryptEncodedRsa(keyPair.privateKey, encoder,padding)
+        return data.decryptEncodedRsa(keyPair.privateKey!!, encoder,padding)
     }
 
     override fun serialize(indented: Boolean): String {

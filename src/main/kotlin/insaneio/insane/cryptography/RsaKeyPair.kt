@@ -12,7 +12,8 @@ import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 @Serializable(with = RsaKeyPairSerializer::class)
-open class RsaKeyPair(val publicKey: String, val privateKey: String) : IJsonSerializable {
+open class RsaKeyPair(val publicKey: String? = null, val privateKey: String? = null) : IJsonSerializable {
+
     companion object : ICompanionJsonSerializable<RsaKeyPair> {
         override val assemblyClass: KClass<RsaKeyPair> = RsaKeyPair::class
         override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
