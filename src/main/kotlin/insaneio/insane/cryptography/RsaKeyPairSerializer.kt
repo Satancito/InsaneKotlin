@@ -1,6 +1,7 @@
 package insaneio.insane.cryptography
 
 import insaneio.insane.extensions.capitalizeName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -28,6 +29,7 @@ class RsaKeyPairSerializer : KSerializer<RsaKeyPair> {
         return RsaKeyPair(publicKey, privateKey)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: RsaKeyPair) {
         return encoder.encodeStructure(descriptor) {
             encodeNullableSerializableElement(descriptor, 0, String.serializer(), value.publicKey)

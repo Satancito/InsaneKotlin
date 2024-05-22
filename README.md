@@ -1,2 +1,2 @@
 # InsaneKotlin
- Insane Kotlin Port.
+ Insane Kotlin JVM/Android port.

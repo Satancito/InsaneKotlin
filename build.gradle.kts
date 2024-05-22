@@ -1,8 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
+
+    kotlin("jvm") version "2.0.0-RC3"
+    kotlin("plugin.serialization").version("2.0.0-RC3")
     `maven-publish`
 }
 
@@ -13,9 +12,34 @@ repositories {
     mavenCentral()
 }
 
+java {
+    sourceSets {
+        val main by getting {
+            java.srcDir("src/main/kotlin")
+        }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
+
+    sourceSets {
+        val main by getting {
+        }
+
+        val test by getting {
+        }
+    }
+}
+
+
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
     implementation("com.lambdaworks:scrypt:1.4.0")
 
@@ -27,10 +51,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 publishing {
