@@ -1,50 +1,49 @@
 package insaneio.insane.cryptography
 
+import insaneio.insane.annotations.TypeIdentifier
+import insaneio.insane.cryptography.enums.*
+import insaneio.insane.cryptography.abstractions.*
+import insaneio.insane.cryptography.serializers.*
 import insaneio.insane.AES_MAX_KEY_LENGTH
-import insaneio.insane.INSANE_ASSEMBLY_NAME
-import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
+import insaneio.insane.cryptography.extensions.*
 import insaneio.insane.extensions.*
-import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
 import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 
+@TypeIdentifier("Insane-Cryptography-AesCbcEncryptor")
 @Serializable(with = AesCbcEncryptorSerializer::class)
-class AesCbcEncryptor(val key:ByteArray = AES_MAX_KEY_LENGTH.nextBytes(), val encoder:IEncoder = Base64Encoder.defaultInstance, val padding: AesCbcPadding =  AesCbcPadding.Pkcs7): IEncryptor {
-
-    val keyString:String = encoder.encode(key)
+class AesCbcEncryptor(val key: ByteArray = AES_MAX_KEY_LENGTH.nextBytes(), val encoder: IEncoder = Base64Encoder.defaultInstance, val padding: AesCbcPadding = AesCbcPadding.Pkcs7) : IEncryptor {
+    val keyString: String = encoder.encode(key)
 
     @Suppress("unused")
-    constructor(key:String, encoder:IEncoder = Base64Encoder.defaultInstance, padding: AesCbcPadding =  AesCbcPadding.Pkcs7):this(key.toByteArrayUtf8(), encoder, padding)
+    constructor(key: String, encoder: IEncoder = Base64Encoder.defaultInstance, padding: AesCbcPadding = AesCbcPadding.Pkcs7) : this(key.toByteArrayUtf8(), encoder, padding)
 
-    companion object: ICompanionJsonSerializable<AesCbcEncryptor>{
-        override val assemblyClass: KClass<AesCbcEncryptor> = AesCbcEncryptor::class
-        override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
-        override val serialName: String = assemblyClass.getTypeCanonicalName()
+    companion object : ICompanionJsonSerializable<AesCbcEncryptor> {
 
         override fun deserialize(json: String): AesCbcEncryptor {
             return Json.decodeFromString<AesCbcEncryptor>(json)
         }
-
     }
 
     override fun encrypt(data: ByteArray): ByteArray {
-        return data.encryptAesCbc(key,padding)
+        return data.encryptAesCbc(key, padding)
     }
 
     override fun encrypt(data: String): ByteArray {
-        return data.encryptAesCbc(key,padding)
+        return data.encryptAesCbc(key, padding)
     }
 
     override fun encryptEncoded(data: ByteArray): String {
-        return data.encryptEncodedAesCbc(key, encoder, padding)
+        return data.encryptAesCbcEncoded(key, encoder, padding)
     }
 
     override fun encryptEncoded(data: String): String {
-        return data.encryptEncodedAesCbc(key, encoder, padding)
+        return data.encryptAesCbcEncoded(key, encoder, padding)
     }
 
     override fun decrypt(data: ByteArray): ByteArray {
@@ -52,12 +51,16 @@ class AesCbcEncryptor(val key:ByteArray = AES_MAX_KEY_LENGTH.nextBytes(), val en
     }
 
     override fun decryptEncoded(data: String): ByteArray {
-        return data.decryptEncodedAesCbc(key, encoder,padding)
+        return data.decryptAesCbcFromEncoded(key, encoder, padding)
     }
 
-    override fun serialize(indented: Boolean): String {
-        return IJsonSerializable.getJsonFormat(indented).encodeToString(this)
-    }
+    override fun toJsonObject(): JsonObject = Json.encodeToJsonElement(this).jsonObject
 
-
+    override fun serialize(indented: Boolean): String =
+        IJsonSerializable.getJsonFormat(indented).encodeToString(JsonObject.serializer(), toJsonObject())
 }
+
+
+
+
+

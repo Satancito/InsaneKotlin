@@ -1,6 +1,7 @@
 package insaneio.insane.serialization
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 
 interface IJsonSerializable {
@@ -15,6 +16,8 @@ interface IJsonSerializable {
         fun getJsonFormat(indented: Boolean = false): Json = if (indented) jsonConfigIndented else jsonConfigNoIndented
 
     }
+
+    fun toJsonObject(): JsonObject
 
     fun serialize(indented: Boolean = false): String
 

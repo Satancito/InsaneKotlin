@@ -13,15 +13,15 @@ open class EnumAsIntSerializer<T : Enum<T>>(
     private val enumClass: KClass<T>,
 ) : KSerializer<T> {
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor( enumClass.getTypeCanonicalName(), PrimitiveKind.INT)
+        PrimitiveSerialDescriptor(enumClass.getTypeCanonicalName(), PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: T) {
-        encoder.encodeInt(value.ordinal)
+        encoder.encodeString(value.name)
     }
 
     override fun deserialize(decoder: Decoder): T {
         val jsonElement = decoder.decodeSerializableValue(JsonElement.serializer())
-        if(jsonElement.jsonPrimitive.isString) {
+        if (jsonElement.jsonPrimitive.isString) {
             return enumClass.java.enumConstants.first { value ->
                 value.name == jsonElement.jsonPrimitive.content
             }

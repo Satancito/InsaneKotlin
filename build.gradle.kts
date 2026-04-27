@@ -1,52 +1,47 @@
 plugins {
-
-    kotlin("jvm") version "2.0.0-RC3"
-    kotlin("plugin.serialization").version("2.0.0-RC3")
+    kotlin("jvm") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
+    `java-library`
     `maven-publish`
 }
 
-group = "InsaneIO"
-version = "0.1"
+val artifactIdValue = "insane"
+
+group = "insaneio"
+version = "10.4.0"
 
 repositories {
     mavenCentral()
 }
 
 java {
-    sourceSets {
-        val main by getting {
-            java.srcDir("src/main/kotlin")
-        }
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withSourcesJar()
+    withJavadocJar()
 }
 
 kotlin {
+    jvmToolchain(17)
+
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-    }
-
-    sourceSets {
-        val main by getting {
-        }
-
-        val test by getting {
-        }
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
     }
 }
 
 
 dependencies {
-    testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
-    implementation("com.lambdaworks:scrypt:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation(kotlin("reflect"))
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
 
-    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on
-    implementation("org.bouncycastle:bcprov-jdk18on:1.77")
-
-
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
 }
 
 tasks.test {
@@ -55,17 +50,11 @@ tasks.test {
 
 publishing {
     publications {
-        create<MavenPublication>("Insane") {
+        create<MavenPublication>("mavenJava") {
             groupId = project.group.toString()
-            artifactId = project.rootProject.name
+            artifactId = artifactIdValue
             version = project.version.toString()
             from(components["java"])
         }
     }
 }
-
-println("ArtifactId: " + project.rootProject.name)
-println("Group: " + project.group.toString())
-println("Version: " + project.version.toString())
-println("Full Identifier: \"${project.group}:${project.rootProject.name}:${project.version}\"")
-

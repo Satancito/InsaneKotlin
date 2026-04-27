@@ -1,24 +1,32 @@
 package insaneio.insane.cryptography
 
+import insaneio.insane.annotations.TypeIdentifier
+
+import insaneio.insane.cryptography.enums.*
+import insaneio.insane.cryptography.abstractions.IEncoder
+import insaneio.insane.cryptography.serializers.Base64EncoderSerializer
 import insaneio.insane.BASE64_NO_LINE_BREAKS_LENGTH
-import insaneio.insane.INSANE_ASSEMBLY_NAME
-import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
+import insaneio.insane.cryptography.extensions.*
 import insaneio.insane.extensions.*
-import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
+import insaneio.insane.misc.ICompanionDefaultInstance
 import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 
+@TypeIdentifier("Insane-Cryptography-Base64Encoder")
 @Serializable(with = Base64EncoderSerializer::class)
-open class Base64Encoder(val lineBreaksLength: UInt = BASE64_NO_LINE_BREAKS_LENGTH, val removePadding: Boolean = false, val encodingType: Base64Encoding = Base64Encoding.Base64) : IEncoder {
-    companion object : ICompanionJsonSerializable<Base64Encoder>, ICompanionDefaultInstance<Base64Encoder> {
-        override val assemblyClass: KClass<Base64Encoder> = Base64Encoder::class
-        override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
-        override val serialName: String = assemblyClass.getTypeCanonicalName()
-
+open class Base64Encoder(
+    val lineBreaksLength: UInt = BASE64_NO_LINE_BREAKS_LENGTH,
+    val removePadding: Boolean = false,
+    val encodingType: Base64Encoding = Base64Encoding.Base64
+) : IEncoder {
+    companion object :
+        ICompanionJsonSerializable<Base64Encoder>,
+        ICompanionDefaultInstance<Base64Encoder> {
         override val defaultInstance: Base64Encoder = Base64Encoder()
 
         override fun deserialize(json: String): Base64Encoder {
@@ -43,7 +51,13 @@ open class Base64Encoder(val lineBreaksLength: UInt = BASE64_NO_LINE_BREAKS_LENG
         return data.decodeFromBase64()
     }
 
-    override fun serialize(indented: Boolean): String {
-        return IJsonSerializable.getJsonFormat(indented).encodeToString(this )
-    }
+    override fun toJsonObject(): JsonObject = Json.encodeToJsonElement(this).jsonObject
+
+    override fun serialize(indented: Boolean): String =
+        IJsonSerializable.getJsonFormat(indented).encodeToString(JsonObject.serializer(), toJsonObject())
 }
+
+
+
+
+

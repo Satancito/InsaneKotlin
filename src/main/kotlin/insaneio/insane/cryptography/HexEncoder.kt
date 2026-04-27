@@ -1,30 +1,31 @@
 package insaneio.insane.cryptography
 
-import insaneio.insane.INSANE_ASSEMBLY_NAME
-import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
-import insaneio.insane.extensions.decodeFromHex
-import insaneio.insane.extensions.encodeToHex
-import insaneio.insane.extensions.getTypeCanonicalName
-import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
+import insaneio.insane.annotations.TypeIdentifier
+
+import insaneio.insane.cryptography.abstractions.IEncoder
+import insaneio.insane.cryptography.serializers.HexEncoderSerializer
+import insaneio.insane.cryptography.extensions.decodeFromHex
+import insaneio.insane.cryptography.extensions.encodeToHex
+import insaneio.insane.misc.ICompanionDefaultInstance
 import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 
+@TypeIdentifier("Insane-Cryptography-HexEncoder")
 @Serializable(with = HexEncoderSerializer::class)
 open class HexEncoder(val toUpper: Boolean = false) : IEncoder {
-    companion object : ICompanionJsonSerializable<HexEncoder>, ICompanionDefaultInstance<HexEncoder> {
-        override val assemblyClass: KClass<HexEncoder> = HexEncoder::class
-        override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
-        override val serialName: String = assemblyClass.getTypeCanonicalName()
+    companion object :
+        ICompanionJsonSerializable<HexEncoder>,
+        ICompanionDefaultInstance<HexEncoder> {
         override val defaultInstance: HexEncoder = HexEncoder()
 
         override fun deserialize(json: String): HexEncoder {
             return Json.decodeFromString<HexEncoder>(json)
         }
-
     }
 
     override fun encode(data: ByteArray): String {
@@ -39,11 +40,13 @@ open class HexEncoder(val toUpper: Boolean = false) : IEncoder {
         return data.decodeFromHex()
     }
 
-    override fun serialize(indented: Boolean): String {
-        return IJsonSerializable.getJsonFormat(indented).encodeToString(this )
-    }
+    override fun toJsonObject(): JsonObject = Json.encodeToJsonElement(this).jsonObject
 
+    override fun serialize(indented: Boolean): String =
+        IJsonSerializable.getJsonFormat(indented).encodeToString(JsonObject.serializer(), toJsonObject())
 }
+
+
 
 
 

@@ -24,3 +24,4 @@ fun KClass<*>.getTypePackageName():String
 {
     return this.java.`package`.name
 }
+

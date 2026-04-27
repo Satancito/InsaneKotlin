@@ -1,34 +1,34 @@
 package insaneio.insane.cryptography
 
-import insaneio.insane.INSANE_ASSEMBLY_NAME
-import insaneio.insane.INSANE_CRYPTOGRAPHY_NAMESPACE
-import insaneio.insane.extensions.computeEncodedHash
-import insaneio.insane.extensions.computeHash
-import insaneio.insane.extensions.getTypeCanonicalName
-import insaneio.insane.serialization.IBaseSerializable.Companion.buildDotnetAssemblyName
+import insaneio.insane.annotations.TypeIdentifier
+
+import insaneio.insane.cryptography.enums.*
+import insaneio.insane.cryptography.abstractions.*
+import insaneio.insane.cryptography.serializers.*
+import insaneio.insane.cryptography.extensions.computeHash
+import insaneio.insane.cryptography.extensions.computeHashEncoded
 import insaneio.insane.serialization.ICompanionJsonSerializable
 import insaneio.insane.serialization.IJsonSerializable
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 
+@TypeIdentifier("Insane-Cryptography-ShaHasher")
 @Serializable(with = ShaHasherSerializer::class)
 class ShaHasher(val encoder: IEncoder = Base64Encoder.defaultInstance, val hashAlgorithm: HashAlgorithm = HashAlgorithm.Sha512) : IHasher {
-
     companion object : ICompanionJsonSerializable<ShaHasher> {
-        override val assemblyClass: KClass<ShaHasher> = ShaHasher::class
-        override val assemblyName: String = assemblyClass.buildDotnetAssemblyName(INSANE_CRYPTOGRAPHY_NAMESPACE, INSANE_ASSEMBLY_NAME)
-        override val serialName: String = assemblyClass.getTypeCanonicalName()
+
         override fun deserialize(json: String): ShaHasher {
             return Json.decodeFromString<ShaHasher>(json)
         }
-
     }
 
-    override fun serialize(indented: Boolean): String {
-        return IJsonSerializable.getJsonFormat(indented).encodeToString(this )
-    }
+    override fun toJsonObject(): JsonObject = Json.encodeToJsonElement(this).jsonObject
+
+    override fun serialize(indented: Boolean): String =
+        IJsonSerializable.getJsonFormat(indented).encodeToString(JsonObject.serializer(), toJsonObject())
 
     override fun compute(data: ByteArray): ByteArray {
         return data.computeHash(hashAlgorithm)
@@ -39,11 +39,11 @@ class ShaHasher(val encoder: IEncoder = Base64Encoder.defaultInstance, val hashA
     }
 
     override fun computeEncoded(data: ByteArray): String {
-        return data.computeEncodedHash(encoder, hashAlgorithm)
+        return data.computeHashEncoded(encoder, hashAlgorithm)
     }
 
     override fun computeEncoded(data: String): String {
-        return data.computeEncodedHash(encoder, hashAlgorithm)
+        return data.computeHashEncoded(encoder, hashAlgorithm)
     }
 
     override fun verify(data: ByteArray, expected: ByteArray): Boolean {
@@ -55,10 +55,15 @@ class ShaHasher(val encoder: IEncoder = Base64Encoder.defaultInstance, val hashA
     }
 
     override fun verifyEncoded(data: ByteArray, expected: String): Boolean {
-        return computeEncoded(data) .contentEquals(expected)
+        return computeEncoded(data).contentEquals(expected)
     }
 
     override fun verifyEncoded(data: String, expected: String): Boolean {
-        return computeEncoded(data) .contentEquals(expected)
+        return computeEncoded(data).contentEquals(expected)
     }
 }
+
+
+
+
+
