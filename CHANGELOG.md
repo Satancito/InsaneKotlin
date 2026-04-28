@@ -1,5 +1,65 @@
 # Changelog
 
+All notable changes to this project are documented in this file.
+
+---
+
+## 10.5.0
+
+This version completes the current TOTP parity work, adds incremental package registration for dynamic deserialization, expands the public documentation in English, and prepares the project for JitPack consumption.
+
+### TOTP
+
+Added or improved:
+
+- `insaneio.insane.security.enums.TotpTimeWindowTolerance`
+- tolerance-aware verification in `TotpExtensions`
+- tolerance-aware verification in `TotpManager`
+- RFC-compliant TOTP dynamic truncation using the last byte of the actual HMAC
+- RFC algorithm names in generated `otpauth://` URIs
+- `Md5` normalization to `Sha1` for TOTP flows
+
+Behavior:
+
+- `None` validates only the current time window
+- `OneWindow` validates the previous, current, and next windows
+- `TwoWindows` validates two previous, current, and two next windows
+
+### Serialization
+
+Added or improved:
+
+- `TypeIdentifierResolver.registerDefaultPackages()`
+- incremental `scanPackages(...)` behavior while preserving cache contents
+- runtime package scanning without a hard-coded list of concrete classes
+
+Impact:
+
+- the resolver can now discover annotated runtime types by package
+- repeated scans of the same package are ignored for already-known classes
+- duplicate `TypeIdentifier` values across different classes still fail fast
+
+### Documentation
+
+Added or improved:
+
+- English package-level documentation under `Docs/packages/`
+- a navigable package index at `Docs/packages/packages.md`
+- richer examples and usage notes for public cryptography, security, and serialization packages
+- `README.md` links to the package documentation index
+- `Docs/Cryptography.md` now references the package-oriented documentation and current TOTP window semantics
+
+### Publishing
+
+Added:
+
+- JitPack build metadata via `jitpack.yml`
+
+Updated:
+
+- library version to `10.5.0`
+- README dependency examples for JitPack
+
 ---
 
 ## 10.4.0
@@ -32,14 +92,14 @@ Capabilities:
 
 Changes:
 
-- Security and cryptography deserialization now rely only on `TypeIdentifier`.
-- `TypeIdentifierResolver` was consolidated under `insaneio.insane.serialization`.
-- `TotpManager` was added to the runtime type identifier registry.
+- security and cryptography deserialization now rely only on `TypeIdentifier`
+- `TypeIdentifierResolver` was consolidated under `insaneio.insane.serialization`
+- `TotpManager` was added to the runtime type identifier registry
 
 Impact:
 
-- Dynamic deserialization no longer depends on `.NET` assembly naming metadata.
-- Concrete payload validation is simpler and more stable across refactors.
+- dynamic deserialization no longer depends on `.NET` assembly naming metadata
+- concrete payload validation is simpler and more stable across refactors
 
 ### Testing
 
@@ -54,9 +114,9 @@ Added or expanded coverage for:
 
 Improvements:
 
-- Updated `Docs/Cryptography.md` to reflect the current Kotlin serialization model and the new TOTP surface.
-- Added this `CHANGELOG.md`.
-- Updated `README.md` to reference documentation and package coordinates.
+- updated `Docs/Cryptography.md` to reflect the current Kotlin serialization model and the new TOTP surface
+- added this `CHANGELOG.md`
+- updated `README.md` to reference documentation and package coordinates
 
 ---
 
@@ -68,25 +128,25 @@ This version reorganized the Kotlin cryptography surface and introduced stable d
 
 Changes:
 
-- Crypto interfaces were grouped under `insaneio.insane.cryptography.abstractions`.
-- Crypto extensions were grouped under `insaneio.insane.cryptography.extensions`.
-- Crypto enums were grouped under `insaneio.insane.cryptography.enums`.
-- Crypto serializers were grouped under `insaneio.insane.cryptography.serializers`.
+- crypto interfaces were grouped under `insaneio.insane.cryptography.abstractions`
+- crypto extensions were grouped under `insaneio.insane.cryptography.extensions`
+- crypto enums were grouped under `insaneio.insane.cryptography.enums`
+- crypto serializers were grouped under `insaneio.insane.cryptography.serializers`
 
 ### Dynamic Deserialization
 
 Changes:
 
-- Added `@TypeIdentifier`.
-- Added `TypeIdentifierResolver`.
-- Added dynamic companion-based deserialization for:
+- added `@TypeIdentifier`
+- added `TypeIdentifierResolver`
+- added dynamic companion-based deserialization for:
   - `IEncoder`
   - `IHasher`
   - `IEncryptor`
 
 Impact:
 
-- Dynamic resolution now uses a stable identifier instead of depending on CLR-style names.
+- dynamic resolution now uses a stable identifier instead of depending on CLR-style names
 
 ### Testing
 
@@ -116,7 +176,7 @@ Improvements:
 
 Improvements:
 
-- HMAC, hash, Scrypt, Argon2, AES, and RSA helpers were normalized around the Kotlin extension-based API.
+- HMAC, hash, Scrypt, Argon2, AES, and RSA helpers were normalized around the Kotlin extension-based API
 
 ### Testing
 

@@ -1,12 +1,7 @@
 package insaneio.insane.cryptography.enums
 
-import insaneio.insane.cryptography.abstractions.*
-import insaneio.insane.cryptography.serializers.*
-
-import insaneio.insane.serialization.EnumAsIntSerializer
+import insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
 import kotlinx.serialization.Serializable
-
-private class HashAlgorithmSerializer : EnumAsIntSerializer<HashAlgorithm>(HashAlgorithm::class)
 
 @Serializable(with = HashAlgorithmSerializer::class)
 enum class HashAlgorithm {
@@ -16,6 +11,8 @@ enum class HashAlgorithm {
     Sha384,
     Sha512
 }
+
+private object HashAlgorithmSerializer : StrictEnumAsStringSerializer<HashAlgorithm>(HashAlgorithm::class)
 
 
 

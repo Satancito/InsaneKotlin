@@ -17,6 +17,8 @@ import insaneio.insane.cryptography.extensions.computeHmac
 import insaneio.insane.cryptography.extensions.computeHmacEncoded
 import insaneio.insane.cryptography.extensions.computeScrypt
 import insaneio.insane.cryptography.extensions.computeScryptEncoded
+import insaneio.insane.extensions.capitalizeName
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertFalse
@@ -136,6 +138,60 @@ class HasherUnitTests {
 
         assertFailsWith<IllegalStateException> { HmacHasher.deserialize(json) }
         assertFailsWith<IllegalArgumentException> { IHasher.deserializeDynamic(json) }
+    }
+
+    @Test
+    fun concreteHasherDeserialize_ShouldRejectMissingRequiredProperties() {
+        val shaWithoutHashAlgorithm = TestSerializationAssertions.removeProperty(
+            ShaHasher(encoder = HexEncoder.defaultInstance, hashAlgorithm = HashAlgorithm.Sha256).serialize(),
+            ShaHasher::hashAlgorithm.capitalizeName()
+        )
+        val hmacWithoutKey = TestSerializationAssertions.removeProperty(
+            HmacHasher(key = key, hashAlgorithm = HashAlgorithm.Sha256, encoder = Base64Encoder.defaultInstance).serialize(),
+            HmacHasher::key.capitalizeName()
+        )
+        val scryptWithoutSalt = TestSerializationAssertions.removeProperty(
+            ScryptHasher(salt = salt, iterations = 16U, blockSize = 1U, parallelism = 1U, derivedKeyLength = 16U, encoder = HexEncoder.defaultInstance).serialize(),
+            ScryptHasher::salt.capitalizeName()
+        )
+        val argon2WithoutVariant = TestSerializationAssertions.removeProperty(
+            Argon2Hasher(salt = salt, iterations = 1U, memorySizeKiB = 1024U, degreeOfParallelism = 1U, derivedKeyLength = 16U, argon2Variant = Argon2Variant.Argon2id, encoder = Base64Encoder.defaultInstance).serialize(),
+            Argon2Hasher::argon2Variant.capitalizeName()
+        )
+
+        assertFailsWith<Throwable> { ShaHasher.deserialize(shaWithoutHashAlgorithm) }
+        assertFailsWith<Throwable> { HmacHasher.deserialize(hmacWithoutKey) }
+        assertFailsWith<Throwable> { ScryptHasher.deserialize(scryptWithoutSalt) }
+        assertFailsWith<Throwable> { Argon2Hasher.deserialize(argon2WithoutVariant) }
+    }
+
+    @Test
+    fun concreteHasherDeserialize_ShouldRejectInvalidPropertyValues() {
+        val shaInvalidHashAlgorithm = TestSerializationAssertions.replaceProperty(
+            ShaHasher(encoder = HexEncoder.defaultInstance, hashAlgorithm = HashAlgorithm.Sha256).serialize(),
+            ShaHasher::hashAlgorithm.capitalizeName(),
+            JsonPrimitive("InvalidHash")
+        )
+        val hmacInvalidEncoder = TestSerializationAssertions.replaceProperty(
+            HmacHasher(key = key, hashAlgorithm = HashAlgorithm.Sha256, encoder = Base64Encoder.defaultInstance).serialize(),
+            HmacHasher::encoder.capitalizeName(),
+            JsonPrimitive("not-an-object")
+        )
+        val scryptInvalidIterations = TestSerializationAssertions.replaceProperty(
+            ScryptHasher(salt = salt, iterations = 16U, blockSize = 1U, parallelism = 1U, derivedKeyLength = 16U, encoder = HexEncoder.defaultInstance).serialize(),
+            ScryptHasher::iterations.capitalizeName(),
+            JsonPrimitive("invalid")
+        )
+        val argon2InvalidVariant = TestSerializationAssertions.replaceProperty(
+            Argon2Hasher(salt = salt, iterations = 1U, memorySizeKiB = 1024U, degreeOfParallelism = 1U, derivedKeyLength = 16U, argon2Variant = Argon2Variant.Argon2id, encoder = Base64Encoder.defaultInstance).serialize(),
+            Argon2Hasher::argon2Variant.capitalizeName(),
+            JsonPrimitive("InvalidVariant")
+        )
+
+        assertFailsWith<Throwable> { ShaHasher.deserialize(shaInvalidHashAlgorithm) }
+        assertFailsWith<Throwable> { HmacHasher.deserialize(hmacInvalidEncoder) }
+        assertFailsWith<Throwable> { ScryptHasher.deserialize(scryptInvalidIterations) }
+        assertFailsWith<Throwable> { Argon2Hasher.deserialize(argon2InvalidVariant) }
     }
 
     private fun assertEqualsCompat(expected: String, actual: String) {

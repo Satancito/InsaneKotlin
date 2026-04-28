@@ -1,12 +1,7 @@
 package insaneio.insane.cryptography.enums
 
-import insaneio.insane.cryptography.abstractions.*
-import insaneio.insane.cryptography.serializers.*
-
-import insaneio.insane.serialization.EnumAsIntSerializer
+import insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
 import kotlinx.serialization.Serializable
-
-private class  RsaPaddingSerializer: EnumAsIntSerializer<RsaPadding>(RsaPadding::class)
 
 @Serializable(with = RsaPaddingSerializer::class)
 enum class RsaPadding {
@@ -16,6 +11,8 @@ enum class RsaPadding {
     OaepSha384,
     OaepSha512
 }
+
+private object  RsaPaddingSerializer: StrictEnumAsStringSerializer<RsaPadding>(RsaPadding::class)
 
 
 

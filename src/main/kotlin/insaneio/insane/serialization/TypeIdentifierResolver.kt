@@ -1,18 +1,9 @@
 package insaneio.insane.serialization
 
-import insaneio.insane.cryptography.AesCbcEncryptor
-import insaneio.insane.cryptography.Argon2Hasher
-import insaneio.insane.cryptography.Base32Encoder
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.HexEncoder
-import insaneio.insane.cryptography.HmacHasher
-import insaneio.insane.cryptography.RsaEncryptor
-import insaneio.insane.cryptography.RsaKeyPair
-import insaneio.insane.cryptography.ScryptHasher
-import insaneio.insane.cryptography.ShaHasher
-import insaneio.insane.security.TotpManager
 import insaneio.insane.annotations.TypeIdentifier
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import java.util.jar.JarFile
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
@@ -25,7 +16,14 @@ import kotlinx.serialization.json.jsonPrimitive
 object TypeIdentifierResolver {
     const val TYPE_IDENTIFIER_JSON_PROPERTY_NAME = "TypeIdentifier"
 
+    private const val DEFAULT_SCAN_PACKAGE_PREFIX = "insaneio/"
+    private val DEFAULT_PACKAGES = arrayOf(
+        "insaneio.insane.cryptography",
+        "insaneio.insane.security"
+    )
+
     private val typeCache = ConcurrentHashMap<String, KClass<*>>()
+    private val scannedClassNames = ConcurrentHashMap.newKeySet<String>()
     private val cacheLock = Any()
 
     @Volatile
@@ -38,6 +36,26 @@ object TypeIdentifierResolver {
     fun matchesSerializedType(annotatedType: KClass<*>, jsonObject: JsonObject): Boolean {
         val serializedTypeId = jsonObject[TYPE_IDENTIFIER_JSON_PROPERTY_NAME]?.jsonPrimitive?.contentOrNull
         return !serializedTypeId.isNullOrBlank() && serializedTypeId == getTypeIdentifier(annotatedType)
+    }
+
+    fun registerDefaultPackages() {
+        scanPackages(*DEFAULT_PACKAGES)
+    }
+
+    fun scanPackages(vararg packageNames: String) {
+        val packagePrefixes = packageNames
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map(::toPackagePrefix)
+
+        if (packagePrefixes.isEmpty()) {
+            return
+        }
+
+        synchronized(cacheLock) {
+            scanRuntimeClasspath(packagePrefixes)
+            cacheInitialized = true
+        }
     }
 
     fun <T : Any> deserializeDynamic(contractType: KClass<T>, json: String): T {
@@ -107,36 +125,92 @@ object TypeIdentifierResolver {
                 return
             }
 
-            registerAnnotatedTypes(
-                AesCbcEncryptor::class,
-                Argon2Hasher::class,
-                Base32Encoder::class,
-                Base64Encoder::class,
-                HexEncoder::class,
-                HmacHasher::class,
-                RsaEncryptor::class,
-                RsaKeyPair::class,
-                ScryptHasher::class,
-                ShaHasher::class,
-                TotpManager::class
-            )
-
+            scanRuntimeClasspath(listOf(DEFAULT_SCAN_PACKAGE_PREFIX))
             cacheInitialized = true
         }
     }
 
-    private fun registerAnnotatedTypes(vararg types: KClass<*>) {
-        for (type in types) {
-            val typeIdentifier = getTypeIdentifier(type)
-            val existingType = typeCache.putIfAbsent(typeIdentifier, type)
+    private fun scanRuntimeClasspath(packagePrefixes: List<String>) {
+        val classLoader = Thread.currentThread().contextClassLoader ?: javaClass.classLoader
+        val classPathEntries = System.getProperty("java.class.path")
+            ?.split(File.pathSeparatorChar)
+            ?.filter { it.isNotBlank() }
+            .orEmpty()
 
-            if (existingType == null || existingType == type) {
+        for (entry in classPathEntries) {
+            val file = File(entry)
+            if (!file.exists()) {
                 continue
             }
 
-            throw IllegalStateException(
-                "Duplicate typeIdentifier '$typeIdentifier' found for '${existingType.qualifiedName}' and '${type.qualifiedName}'."
-            )
+            when {
+                file.isDirectory -> scanDirectory(file, classLoader, packagePrefixes)
+                file.isFile && file.extension.equals("jar", ignoreCase = true) -> scanJar(file, classLoader, packagePrefixes)
+            }
         }
+    }
+
+    private fun scanDirectory(root: File, classLoader: ClassLoader, packagePrefixes: List<String>) {
+        for (packagePrefix in packagePrefixes) {
+            val packageRoot = File(root, packagePrefix)
+            if (!packageRoot.exists()) {
+                continue
+            }
+
+            packageRoot.walkTopDown()
+                .filter { it.isFile && it.extension == "class" }
+                .forEach { classFile ->
+                    val relativePath = classFile.relativeTo(root).invariantSeparatorsPath
+                    registerAnnotatedClassName(relativePath.removeSuffix(".class").replace('/', '.'), classLoader)
+                }
+        }
+    }
+
+    private fun scanJar(jarFile: File, classLoader: ClassLoader, packagePrefixes: List<String>) {
+        JarFile(jarFile).use { jar ->
+            val entries = jar.entries()
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                if (entry.isDirectory || !entry.name.endsWith(".class")) {
+                    continue
+                }
+
+                if (packagePrefixes.none(entry.name::startsWith)) {
+                    continue
+                }
+
+                registerAnnotatedClassName(entry.name.removeSuffix(".class").replace('/', '.'), classLoader)
+            }
+        }
+    }
+
+    private fun toPackagePrefix(packageName: String): String =
+        packageName.replace('.', '/').trim('/').let { "$it/" }
+
+    private fun registerAnnotatedClassName(className: String, classLoader: ClassLoader) {
+        if (!scannedClassNames.add(className)) {
+            return
+        }
+
+        val javaClass = runCatching { Class.forName(className, false, classLoader) }.getOrNull() ?: return
+        if (javaClass.isInterface || javaClass.isEnum || javaClass.isAnnotation || javaClass.isAnonymousClass) {
+            return
+        }
+
+        val kotlinClass = javaClass.kotlin
+        val typeAnnotation = kotlinClass.findAnnotation<TypeIdentifier>() ?: return
+        registerAnnotatedType(typeAnnotation.identifier, kotlinClass)
+    }
+
+    private fun registerAnnotatedType(typeIdentifier: String, type: KClass<*>) {
+        val existingType = typeCache.putIfAbsent(typeIdentifier, type)
+
+        if (existingType == null || existingType == type) {
+            return
+        }
+
+        throw IllegalStateException(
+            "Duplicate typeIdentifier '$typeIdentifier' found for '${existingType.qualifiedName}' and '${type.qualifiedName}'."
+        )
     }
 }

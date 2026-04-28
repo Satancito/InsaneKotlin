@@ -1,12 +1,7 @@
 package insaneio.insane.cryptography.enums
 
-import insaneio.insane.cryptography.abstractions.*
-import insaneio.insane.cryptography.serializers.*
-
-import insaneio.insane.serialization.EnumAsIntSerializer
+import insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
 import kotlinx.serialization.Serializable
-
-private class  Argon2VariantSerializer: EnumAsIntSerializer<Argon2Variant>(Argon2Variant::class)
 
 @Serializable(with = Argon2VariantSerializer::class)
 enum class Argon2Variant {
@@ -14,6 +9,8 @@ enum class Argon2Variant {
     Argon2i,
     Argon2id
 }
+
+private object Argon2VariantSerializer: StrictEnumAsStringSerializer<Argon2Variant>(Argon2Variant::class)
 
 
 

@@ -1,4 +1,4 @@
-package insaneio.insane.serialization
+package insaneio.insane.serialization.serializers
 
 import insaneio.insane.extensions.getTypeCanonicalName
 import kotlinx.serialization.KSerializer
@@ -9,7 +9,7 @@ import kotlinx.serialization.json.*
 import kotlin.reflect.KClass
 
 
-open class EnumAsIntSerializer<T : Enum<T>>(
+open class EnumAsStringSerializer<T : Enum<T>>(
     private val enumClass: KClass<T>,
 ) : KSerializer<T> {
     override val descriptor: SerialDescriptor =

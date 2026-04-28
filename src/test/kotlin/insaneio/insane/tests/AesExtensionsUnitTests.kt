@@ -13,8 +13,10 @@ import insaneio.insane.cryptography.extensions.decryptAesCbc
 import insaneio.insane.cryptography.extensions.decryptAesCbcFromEncoded
 import insaneio.insane.cryptography.extensions.encryptAesCbc
 import insaneio.insane.cryptography.extensions.encryptAesCbcEncoded
+import insaneio.insane.extensions.capitalizeName
 import insaneio.insane.extensions.toByteArrayUtf8
 import insaneio.insane.extensions.toStringUtf8
+import kotlinx.serialization.json.JsonPrimitive
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import kotlin.test.Test
@@ -102,5 +104,35 @@ class AesExtensionsUnitTests {
 
         assertFails { AesCbcEncryptor.deserialize(json) }
         assertFails { IEncryptor.deserializeDynamic(json) }
+    }
+
+    @Test
+    fun aesCbcEncryptorDeserialize_ShouldRejectMissingRequiredProperties() {
+        val source = AesCbcEncryptor(key, HexEncoder.defaultInstance, AesCbcPadding.Pkcs7).serialize()
+        val withoutKey = TestSerializationAssertions.removeProperty(source, AesCbcEncryptor::key.capitalizeName())
+        val withoutPadding = TestSerializationAssertions.removeProperty(source, AesCbcEncryptor::padding.capitalizeName())
+        val withoutEncoder = TestSerializationAssertions.removeProperty(source, AesCbcEncryptor::encoder.capitalizeName())
+
+        assertFails { AesCbcEncryptor.deserialize(withoutKey) }
+        assertFails { AesCbcEncryptor.deserialize(withoutPadding) }
+        assertFails { AesCbcEncryptor.deserialize(withoutEncoder) }
+    }
+
+    @Test
+    fun aesCbcEncryptorDeserialize_ShouldRejectInvalidPropertyValues() {
+        val source = AesCbcEncryptor(key, HexEncoder.defaultInstance, AesCbcPadding.Pkcs7).serialize()
+        val invalidPadding = TestSerializationAssertions.replaceProperty(
+            source,
+            AesCbcEncryptor::padding.capitalizeName(),
+            JsonPrimitive("InvalidPadding")
+        )
+        val invalidEncoder = TestSerializationAssertions.replaceProperty(
+            source,
+            AesCbcEncryptor::encoder.capitalizeName(),
+            JsonPrimitive("not-an-object")
+        )
+
+        assertFails { AesCbcEncryptor.deserialize(invalidPadding) }
+        assertFails { AesCbcEncryptor.deserialize(invalidEncoder) }
     }
 }

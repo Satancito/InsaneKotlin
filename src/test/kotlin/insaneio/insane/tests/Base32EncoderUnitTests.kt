@@ -3,6 +3,7 @@ package insaneio.insane.tests
 import insaneio.insane.cryptography.Base32Encoder
 import insaneio.insane.cryptography.HexEncoder
 import insaneio.insane.cryptography.abstractions.IEncoder
+import insaneio.insane.extensions.capitalizeName
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -102,5 +103,28 @@ class Base32EncoderUnitTests {
     fun deserialize_ShouldRejectMismatchedSerializedType() {
         val json = HexEncoder.defaultInstance.serialize()
         assertFailsWith<IllegalStateException> { Base32Encoder.deserialize(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingTypeIdentifier() {
+        val json = TestSerializationAssertions.removeTypeIdentifier(Base32Encoder.defaultInstance.serialize())
+
+        assertFailsWith<IllegalStateException> { Base32Encoder.deserialize(json) }
+        assertFailsWith<IllegalArgumentException> { IEncoder.deserializeDynamic(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingRequiredProperties() {
+        val jsonWithoutRemovePadding = TestSerializationAssertions.removeProperty(
+            Base32Encoder.defaultInstance.serialize(),
+            Base32Encoder::removePadding.capitalizeName()
+        )
+        val jsonWithoutToLower = TestSerializationAssertions.removeProperty(
+            Base32Encoder.defaultInstance.serialize(),
+            Base32Encoder::toLower.capitalizeName()
+        )
+
+        assertFailsWith<Throwable> { Base32Encoder.deserialize(jsonWithoutRemovePadding) }
+        assertFailsWith<Throwable> { Base32Encoder.deserialize(jsonWithoutToLower) }
     }
 }

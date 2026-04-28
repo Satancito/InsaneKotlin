@@ -5,11 +5,14 @@ import insaneio.insane.cryptography.HexEncoder
 import insaneio.insane.extensions.capitalizeName
 import insaneio.insane.extensions.toByteArrayUtf8
 import insaneio.insane.security.TotpManager
+import insaneio.insane.security.enums.TotpTimeWindowTolerance
+import insaneio.insane.serialization.TypeIdentifierResolver
 import java.time.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
@@ -52,6 +55,20 @@ class TotpManagerUnitTests {
     }
 
     @Test
+    fun toJsonObject_ShouldStoreTypeIdentifierAndBase32Secret() {
+        val jsonObject = manager.toJsonObject()
+
+        assertEquals(
+            "Insane-Security-TotpManager",
+            jsonObject[TypeIdentifierResolver.TYPE_IDENTIFIER_JSON_PROPERTY_NAME]?.toString()?.trim('"')
+        )
+        assertEquals(
+            Base32Encoder.defaultInstance.encode(manager.secret),
+            jsonObject[TotpManager::secret.capitalizeName()]?.toString()?.trim('"')
+        )
+    }
+
+    @Test
     fun factoryMethods_ShouldCreateEquivalentManagers() {
         val base32Secret = Base32Encoder.defaultInstance.encode(manager.secret)
         val hexSecret = HexEncoder.defaultInstance.encode(manager.secret)
@@ -77,10 +94,75 @@ class TotpManagerUnitTests {
     }
 
     @Test
+    fun verifyCode_ShouldSupportToleranceWindows() {
+        val now = Instant.ofEpochMilli(codes.first().second)
+        val code = manager.computeCode(now)
+
+        assertFalse(manager.verifyCode(code, now.plusSeconds(manager.timePeriodInSeconds.toLong())))
+        assertTrue(manager.verifyCode(code, now.plusSeconds(manager.timePeriodInSeconds.toLong()), TotpTimeWindowTolerance.OneWindow))
+        assertFalse(manager.verifyCode(code, now.plusSeconds(manager.timePeriodInSeconds.toLong() * 2), TotpTimeWindowTolerance.OneWindow))
+        assertTrue(manager.verifyCode(code, now.plusSeconds(manager.timePeriodInSeconds.toLong() * 2), TotpTimeWindowTolerance.TwoWindows))
+        assertEquals(
+            manager.verifyCode(code, now.plusSeconds(manager.timePeriodInSeconds.toLong()), TotpTimeWindowTolerance.OneWindow),
+            manager.verifyTotpCode(code, now.plusSeconds(manager.timePeriodInSeconds.toLong()), TotpTimeWindowTolerance.OneWindow)
+        )
+    }
+
+    @Test
     fun deserialize_ShouldRejectMismatchedSerializedType() {
         val json = HexEncoder.defaultInstance.serialize()
 
-        assertFailsWith<IllegalArgumentException> { TotpManager.deserialize(json) }
+        assertFailsWith<IllegalStateException> { TotpManager.deserialize(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingTypeIdentifier() {
+        val json = TestSerializationAssertions.removeTypeIdentifier(manager.serialize())
+
+        assertFailsWith<IllegalStateException> { TotpManager.deserialize(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectIncorrectTypeIdentifier() {
+        val json = TestSerializationAssertions.replaceTypeIdentifier(manager.serialize(), "Insane-Security-OtherManager")
+
+        assertFailsWith<IllegalStateException> { TotpManager.deserialize(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingRequiredProperties() {
+        val source = manager.serialize()
+        val withoutSecret = TestSerializationAssertions.removeProperty(source, TotpManager::secret.capitalizeName())
+        val withoutLabel = TestSerializationAssertions.removeProperty(source, TotpManager::label.capitalizeName())
+        val withoutIssuer = TestSerializationAssertions.removeProperty(source, TotpManager::issuer.capitalizeName())
+
+        assertFailsWith<Throwable> { TotpManager.deserialize(withoutSecret) }
+        assertFailsWith<Throwable> { TotpManager.deserialize(withoutLabel) }
+        assertFailsWith<Throwable> { TotpManager.deserialize(withoutIssuer) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectInvalidPropertyValues() {
+        val source = manager.serialize()
+        val invalidCodeLength = TestSerializationAssertions.replaceProperty(
+            source,
+            TotpManager::codeLength.capitalizeName(),
+            JsonPrimitive("InvalidLength")
+        )
+        val invalidHashAlgorithm = TestSerializationAssertions.replaceProperty(
+            source,
+            TotpManager::hashAlgorithm.capitalizeName(),
+            JsonPrimitive("InvalidHash")
+        )
+        val invalidTimePeriod = TestSerializationAssertions.replaceProperty(
+            source,
+            TotpManager::timePeriodInSeconds.capitalizeName(),
+            JsonPrimitive("invalid")
+        )
+
+        assertFailsWith<Throwable> { TotpManager.deserialize(invalidCodeLength) }
+        assertFailsWith<Throwable> { TotpManager.deserialize(invalidHashAlgorithm) }
+        assertFailsWith<Throwable> { TotpManager.deserialize(invalidTimePeriod) }
     }
 
     @Test

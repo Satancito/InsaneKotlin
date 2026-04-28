@@ -5,18 +5,25 @@ import insaneio.insane.cryptography.enums.HashAlgorithm
 import insaneio.insane.cryptography.extensions.computeHmac
 import insaneio.insane.cryptography.extensions.decodeFromBase32
 import insaneio.insane.cryptography.extensions.encodeToBase32
-import insaneio.insane.security.TwoFactorCodeLength
+import insaneio.insane.security.enums.TotpTimeWindowTolerance
+import insaneio.insane.security.enums.TwoFactorCodeLength
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 
 private const val INITIAL_COUNTER_TIME = 0L
-private const val DYNAMIC_TRUNCATION_OFFSET_INDEX = 19
 const val TOTP_DEFAULT_PERIOD: UInt = 30U
 
 private fun HashAlgorithm.normalizeTotpAlgorithm(): HashAlgorithm = when (this) {
     HashAlgorithm.Md5 -> HashAlgorithm.Sha1
     else -> this
+}
+
+private fun HashAlgorithm.getTotpAlgorithmName(): String = when (normalizeTotpAlgorithm()) {
+    HashAlgorithm.Sha1 -> "SHA1"
+    HashAlgorithm.Sha256 -> "SHA256"
+    HashAlgorithm.Sha512 -> "SHA512"
+    else -> throw IllegalArgumentException("Hash algorithm '$this' is not supported for TOTP.")
 }
 
 private fun Long.toBigEndianByteArray(): ByteArray {
@@ -49,7 +56,7 @@ fun ByteArray.generateTotpUri(
     val encodedIssuer = URLEncoder.encode(issuer, StandardCharsets.UTF_8.name())
     val encodedSecret = this.encodeToBase32(removePadding = true)
 
-    return "otpauth://totp/$encodedLabel?secret=$encodedSecret&issuer=$encodedIssuer&algorithm=${algorithm.name.uppercase()}&digits=${codeLength.digits}&period=$timePeriodInSeconds"
+    return "otpauth://totp/$encodedLabel?secret=$encodedSecret&issuer=$encodedIssuer&algorithm=${algorithm.getTotpAlgorithmName()}&digits=${codeLength.digits}&period=$timePeriodInSeconds"
 }
 
 fun String.generateTotpUri(label: String, issuer: String): String =
@@ -64,7 +71,7 @@ fun ByteArray.computeTotpCode(
     val normalizedAlgorithm = hashAlgorithm.normalizeTotpAlgorithm()
     val timeInterval = (now.epochSecond - INITIAL_COUNTER_TIME) / timePeriodInSeconds.toLong()
     val hmac = timeInterval.toBigEndianByteArray().computeHmac(this, normalizedAlgorithm)
-    val offset = hmac[DYNAMIC_TRUNCATION_OFFSET_INDEX].toInt() and 0x0F
+    val offset = hmac[hmac.lastIndex].toInt() and 0x0F
     val binaryCode = (
         ((hmac[offset].toInt() and 0x7F) shl 24) or
             ((hmac[offset + 1].toInt() and 0xFF) shl 16) or
@@ -93,13 +100,42 @@ fun String.verifyTotpCode(
 
 fun String.verifyTotpCode(
     secret: ByteArray,
+    now: Instant,
+    tolerance: TotpTimeWindowTolerance,
+    length: TwoFactorCodeLength = TwoFactorCodeLength.SixDigits,
+    hashAlgorithm: HashAlgorithm = HashAlgorithm.Sha1,
+    timePeriodInSeconds: UInt = TOTP_DEFAULT_PERIOD
+): Boolean {
+    val windowCount = tolerance.ordinal
+    for (offset in -windowCount..windowCount) {
+        if (verifyTotpCode(secret, now.plusSeconds(offset.toLong() * timePeriodInSeconds.toLong()), length, hashAlgorithm, timePeriodInSeconds)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+fun String.verifyTotpCode(
+    secret: ByteArray,
     length: TwoFactorCodeLength = TwoFactorCodeLength.SixDigits,
     hashAlgorithm: HashAlgorithm = HashAlgorithm.Sha1,
     timePeriodInSeconds: UInt = TOTP_DEFAULT_PERIOD
 ): Boolean = verifyTotpCode(secret, Instant.now(), length, hashAlgorithm, timePeriodInSeconds)
 
+fun String.verifyTotpCode(
+    secret: ByteArray,
+    tolerance: TotpTimeWindowTolerance,
+    length: TwoFactorCodeLength = TwoFactorCodeLength.SixDigits,
+    hashAlgorithm: HashAlgorithm = HashAlgorithm.Sha1,
+    timePeriodInSeconds: UInt = TOTP_DEFAULT_PERIOD
+): Boolean = verifyTotpCode(secret, Instant.now(), tolerance, length, hashAlgorithm, timePeriodInSeconds)
+
 fun String.verifyTotpCode(base32EncodedSecret: String): Boolean =
     verifyTotpCode(Base32Encoder.defaultInstance.decode(base32EncodedSecret))
+
+fun String.verifyTotpCode(base32EncodedSecret: String, tolerance: TotpTimeWindowTolerance): Boolean =
+    verifyTotpCode(Base32Encoder.defaultInstance.decode(base32EncodedSecret), tolerance)
 
 fun Instant.computeTotpRemainingSeconds(timePeriodInSeconds: UInt = TOTP_DEFAULT_PERIOD): Long {
     val period = timePeriodInSeconds.toLong()

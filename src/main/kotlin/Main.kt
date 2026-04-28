@@ -1,42 +1,73 @@
-import insaneio.insane.EMPTY_STRING
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.RsaEncryptor
-import insaneio.insane.cryptography.ScryptHasher
-import insaneio.insane.cryptography.abstractions.IEncoder
-import insaneio.insane.cryptography.abstractions.IEncryptor
-import insaneio.insane.cryptography.abstractions.IHasher
-import insaneio.insane.cryptography.enums.RsaKeyPairEncoding
-import insaneio.insane.cryptography.extensions.createRsaKeyPair
+import insaneio.insane.cryptography.Base32Encoder
+import insaneio.insane.cryptography.enums.HashAlgorithm
+import insaneio.insane.security.enums.TotpTimeWindowTolerance
+import insaneio.insane.security.enums.TwoFactorCodeLength
+import insaneio.insane.security.extensions.computeTotpCode
+import insaneio.insane.security.extensions.computeTotpRemainingSeconds
+import insaneio.insane.security.extensions.verifyTotpCode
+import java.time.Instant
 
-fun main(args: Array<String>) {
-    val indented = true
-    val keyPairEncoding = RsaKeyPairEncoding.Xml
-    val keyPair = 4096U.createRsaKeyPair(keyPairEncoding)
-    val encoder: IEncoder = Base64Encoder()
-    val hasher: IHasher = ScryptHasher()
-    val encryptor: IEncryptor = RsaEncryptor(keyPair)
+private const val BASE32_SECRET = "JBSWY3DPEHPK3PXP"
+private const val TIME_PERIOD_IN_SECONDS = 10U
+private val CODE_LENGTH = TwoFactorCodeLength.SixDigits
+private val HASH_ALGORITHM = HashAlgorithm.Sha1
 
-    println(encoder::class.qualifiedName + "✅")
-    println(encoder.serialize(indented))
 
-    println(hasher::class.qualifiedName + "✅")
-    println(hasher.serialize(indented))
+fun main() {
+    val secret = Base32Encoder.defaultInstance.decode(BASE32_SECRET)
 
-    println(encryptor::class.qualifiedName + "✅")
-    println(encryptor.serialize(indented))
+    println("TOTP demo running for secret: $BASE32_SECRET")
+    println("Digits: ${CODE_LENGTH.digits}")
+    println("Period: $TIME_PERIOD_IN_SECONDS seconds")
+    println("Hash algorithm: $HASH_ALGORITHM")
+    println("Press Ctrl+C to stop.")
 
-    var json: String = EMPTY_STRING
-    println(encoder::class.qualifiedName + "✅")
-    json = IEncoder.deserializeDynamic(encoder.serialize(indented)).serialize(true)
-    println(json)
+    while (true) {
+        val now = Instant.now()
+        val currentCode = secret.computeTotpCode(now, CODE_LENGTH, HASH_ALGORITHM, TIME_PERIOD_IN_SECONDS)
+        val remainingSeconds = now.computeTotpRemainingSeconds(TIME_PERIOD_IN_SECONDS)
+        val none = currentCode.verifyTotpCode(
+            secret,
+            now,
+            TotpTimeWindowTolerance.None,
+            CODE_LENGTH,
+            HASH_ALGORITHM,
+            TIME_PERIOD_IN_SECONDS
+        )
+        val oneWindow = currentCode.verifyTotpCode(
+            secret,
+            now,
+            TotpTimeWindowTolerance.OneWindow,
+            CODE_LENGTH,
+            HASH_ALGORITHM,
+            TIME_PERIOD_IN_SECONDS
+        )
+        val twoWindows = currentCode.verifyTotpCode(
+            secret,
+            now,
+            TotpTimeWindowTolerance.TwoWindows,
+            CODE_LENGTH,
+            HASH_ALGORITHM,
+            TIME_PERIOD_IN_SECONDS
+        )
 
-    println(hasher::class.qualifiedName + "✅")
-    json = IHasher.deserializeDynamic(hasher.serialize(indented)).serialize(true)
-    println(json)
+        val line = buildString {
+            append("Now=")
+            append(now)
+            append(" | Code=")
+            append(currentCode)
+            append(" | Remaining=")
+            append(remainingSeconds)
+            append("s")
+            append(" | None=")
+            append(none)
+            append(" | OneWindow=")
+            append(oneWindow)
+            append(" | TwoWindows=")
+            append(twoWindows)
+        }
 
-    println(encryptor::class.qualifiedName + "✅")
-    json = IEncryptor.deserializeDynamic(encryptor.serialize(indented)).serialize(true)
-    println(json)
-
-    println(encoder.encode("Joma"))
+        print("\r" + line.padEnd(160))
+        Thread.sleep(1_000)
+    }
 }

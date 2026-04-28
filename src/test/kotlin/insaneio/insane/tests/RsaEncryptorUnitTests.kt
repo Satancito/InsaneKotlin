@@ -17,10 +17,12 @@ import insaneio.insane.cryptography.extensions.encryptRsaEncoded
 import insaneio.insane.cryptography.extensions.getRsaKeyEncoding
 import insaneio.insane.cryptography.extensions.validateRsaPrivateKey
 import insaneio.insane.cryptography.extensions.validateRsaPublicKey
+import insaneio.insane.extensions.capitalizeName
 import insaneio.insane.extensions.toStringUtf8
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -107,6 +109,16 @@ class RsaEncryptorUnitTests {
     }
 
     @Test
+    fun rsaKeyPairDeserialize_ShouldRejectMissingRequiredProperties() {
+        val source = 2048U.createRsaKeyPair(RsaKeyPairEncoding.Pem).serialize()
+        val withoutPublicKey = TestSerializationAssertions.removeProperty(source, RsaKeyPair::publicKey.capitalizeName())
+        val withoutPrivateKey = TestSerializationAssertions.removeProperty(source, RsaKeyPair::privateKey.capitalizeName())
+
+        assertFails { RsaKeyPair.deserialize(withoutPublicKey) }
+        assertFails { RsaKeyPair.deserialize(withoutPrivateKey) }
+    }
+
+    @Test
     fun rsaEncryptorDeserialize_ShouldRejectMismatchedSerializedType() {
         val json = AesCbcEncryptor(
             key = "12345678",
@@ -115,5 +127,56 @@ class RsaEncryptorUnitTests {
         ).serialize()
 
         assertFails { RsaEncryptor.deserialize(json) }
+    }
+
+    @Test
+    fun rsaEncryptorDeserialize_ShouldRejectMissingTypeIdentifier() {
+        val encryptor = RsaEncryptor(
+            keyPair = 2048U.createRsaKeyPair(),
+            padding = RsaPadding.OaepSha256,
+            encoder = Base64Encoder.defaultInstance
+        )
+        val json = TestSerializationAssertions.removeTypeIdentifier(encryptor.serialize())
+
+        assertFails { RsaEncryptor.deserialize(json) }
+        assertFails { IEncryptor.deserializeDynamic(json) }
+    }
+
+    @Test
+    fun rsaEncryptorDeserialize_ShouldRejectMissingRequiredProperties() {
+        val source = RsaEncryptor(
+            keyPair = 2048U.createRsaKeyPair(),
+            padding = RsaPadding.OaepSha256,
+            encoder = Base64Encoder.defaultInstance
+        ).serialize()
+        val withoutKeyPair = TestSerializationAssertions.removeProperty(source, RsaEncryptor::keyPair.capitalizeName())
+        val withoutEncoder = TestSerializationAssertions.removeProperty(source, RsaEncryptor::encoder.capitalizeName())
+        val withoutPadding = TestSerializationAssertions.removeProperty(source, RsaEncryptor::padding.capitalizeName())
+
+        assertFails { RsaEncryptor.deserialize(withoutKeyPair) }
+        assertFails { RsaEncryptor.deserialize(withoutEncoder) }
+        assertFails { RsaEncryptor.deserialize(withoutPadding) }
+    }
+
+    @Test
+    fun rsaEncryptorDeserialize_ShouldRejectInvalidPropertyValues() {
+        val source = RsaEncryptor(
+            keyPair = 2048U.createRsaKeyPair(),
+            padding = RsaPadding.OaepSha256,
+            encoder = Base64Encoder.defaultInstance
+        ).serialize()
+        val invalidPadding = TestSerializationAssertions.replaceProperty(
+            source,
+            RsaEncryptor::padding.capitalizeName(),
+            JsonPrimitive("InvalidPadding")
+        )
+        val invalidEncoder = TestSerializationAssertions.replaceProperty(
+            source,
+            RsaEncryptor::encoder.capitalizeName(),
+            JsonPrimitive("not-an-object")
+        )
+
+        assertFails { RsaEncryptor.deserialize(invalidPadding) }
+        assertFails { RsaEncryptor.deserialize(invalidEncoder) }
     }
 }

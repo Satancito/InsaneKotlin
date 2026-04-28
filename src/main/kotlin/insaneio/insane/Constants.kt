@@ -1,8 +1,5 @@
 package insaneio.insane
 
-const val INSANE_ASSEMBLY_NAME: String = "InsaneIO.Insane"
-const val INSANE_CRYPTOGRAPHY_NAMESPACE: String = "InsaneIO.Insane.Cryptography"
-
 const val BASE64_NO_LINE_BREAKS_LENGTH: UInt = 0U
 const val BASE64_MIME_LINE_BREAKS_LENGTH: UInt = 76U
 const val BASE64_PEM_LINE_BREAKS_LENGTH: UInt = 64U

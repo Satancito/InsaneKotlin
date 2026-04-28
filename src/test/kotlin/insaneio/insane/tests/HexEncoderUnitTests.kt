@@ -3,6 +3,7 @@ package insaneio.insane.tests
 import insaneio.insane.cryptography.Base32Encoder
 import insaneio.insane.cryptography.HexEncoder
 import insaneio.insane.cryptography.abstractions.IEncoder
+import insaneio.insane.extensions.capitalizeName
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -60,5 +61,15 @@ class HexEncoderUnitTests {
         val json = TestSerializationAssertions.removeTypeIdentifier(HexEncoder.defaultInstance.serialize())
         assertFailsWith<IllegalStateException> { HexEncoder.deserialize(json) }
         assertFailsWith<IllegalArgumentException> { IEncoder.deserializeDynamic(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingRequiredProperties() {
+        val json = TestSerializationAssertions.removeProperty(
+            HexEncoder.defaultInstance.serialize(),
+            HexEncoder::toUpper.capitalizeName()
+        )
+
+        assertFailsWith<Throwable> { HexEncoder.deserialize(json) }
     }
 }

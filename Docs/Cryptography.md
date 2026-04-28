@@ -13,6 +13,10 @@ Main packages:
 - `insaneio.insane.security.extensions`
 - `insaneio.insane.serialization`
 
+Package-oriented documentation is also available under:
+
+- `Docs/packages/packages.md`
+
 ## Design
 
 The Kotlin port keeps the `.NET` intent and public naming, while adapting the implementation to Kotlin/JVM conventions:
@@ -281,6 +285,12 @@ val code = manager.computeCode()
 val valid = manager.verifyCode(code)
 val uri = manager.generateTotpUri()
 ```
+
+Window tolerance is modeled through `TotpTimeWindowTolerance`:
+
+- `None`: current window only
+- `OneWindow`: previous, current, and next windows
+- `TwoWindows`: two previous, current, and two next windows
 
 ## Notes
 

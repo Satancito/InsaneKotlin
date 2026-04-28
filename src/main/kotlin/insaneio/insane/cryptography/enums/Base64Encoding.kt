@@ -1,12 +1,7 @@
 package insaneio.insane.cryptography.enums
 
-import insaneio.insane.cryptography.abstractions.*
-import insaneio.insane.cryptography.serializers.*
-
-import insaneio.insane.serialization.EnumAsIntSerializer
+import insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
 import kotlinx.serialization.Serializable
-
-private class Base64EncodingSerializer : EnumAsIntSerializer<Base64Encoding>(Base64Encoding::class)
 
 @Serializable(with = Base64EncodingSerializer::class)
 enum class Base64Encoding {
@@ -15,6 +10,8 @@ enum class Base64Encoding {
     FileNameSafeBase64,
     UrlEncodedBase64
 }
+
+private object Base64EncodingSerializer : StrictEnumAsStringSerializer<Base64Encoding>(Base64Encoding::class)
 
 
 

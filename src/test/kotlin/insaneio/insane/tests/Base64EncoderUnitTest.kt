@@ -7,7 +7,9 @@ import insaneio.insane.cryptography.HexEncoder
 import insaneio.insane.cryptography.abstractions.IEncoder
 import insaneio.insane.cryptography.enums.Base64Encoding
 import insaneio.insane.cryptography.extensions.insertLineBreaks
+import insaneio.insane.extensions.capitalizeName
 import insaneio.insane.extensions.toByteArrayUtf8
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -176,5 +178,43 @@ class Base64EncoderUnitTest {
     fun deserialize_ShouldRejectMismatchedSerializedType() {
         val json = HexEncoder.defaultInstance.serialize()
         assertFailsWith<IllegalStateException> { Base64Encoder.deserialize(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingTypeIdentifier() {
+        val json = TestSerializationAssertions.removeTypeIdentifier(Base64Encoder.defaultInstance.serialize())
+
+        assertFailsWith<IllegalStateException> { Base64Encoder.deserialize(json) }
+        assertFailsWith<IllegalArgumentException> { IEncoder.deserializeDynamic(json) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectMissingRequiredProperties() {
+        val source = Base64Encoder.defaultInstance.serialize()
+        val missingLineBreaksLength = TestSerializationAssertions.removeProperty(source, Base64Encoder::lineBreaksLength.capitalizeName())
+        val missingRemovePadding = TestSerializationAssertions.removeProperty(source, Base64Encoder::removePadding.capitalizeName())
+        val missingEncodingType = TestSerializationAssertions.removeProperty(source, Base64Encoder::encodingType.capitalizeName())
+
+        assertFailsWith<Throwable> { Base64Encoder.deserialize(missingLineBreaksLength) }
+        assertFailsWith<Throwable> { Base64Encoder.deserialize(missingRemovePadding) }
+        assertFailsWith<Throwable> { Base64Encoder.deserialize(missingEncodingType) }
+    }
+
+    @Test
+    fun deserialize_ShouldRejectInvalidPropertyValues() {
+        val source = Base64Encoder.defaultInstance.serialize()
+        val invalidLineBreaksLength = TestSerializationAssertions.replaceProperty(
+            source,
+            Base64Encoder::lineBreaksLength.capitalizeName(),
+            JsonPrimitive("NaN")
+        )
+        val invalidEncodingType = TestSerializationAssertions.replaceProperty(
+            source,
+            Base64Encoder::encodingType.capitalizeName(),
+            JsonPrimitive("InvalidEncoding")
+        )
+
+        assertFailsWith<Throwable> { Base64Encoder.deserialize(invalidLineBreaksLength) }
+        assertFailsWith<Throwable> { Base64Encoder.deserialize(invalidEncodingType) }
     }
 }
