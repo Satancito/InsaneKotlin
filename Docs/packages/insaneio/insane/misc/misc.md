@@ -6,14 +6,6 @@ Small supporting contracts that do not fit better elsewhere.
 
 - [insaneio.insane](../insane.md)
 
-## Related Packages
-
-- [insaneio.insane.annotations](../annotations/annotations.md)
-- [insaneio.insane.cryptography](../cryptography/cryptography.md)
-- [insaneio.insane.extensions](../extensions/extensions.md)
-- [insaneio.insane.security](../security/security.md)
-- [insaneio.insane.serialization](../serialization/serialization.md)
-
 ## Usage Notes
 
 - This package contains small support contracts, not end-user features.

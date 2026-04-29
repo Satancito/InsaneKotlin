@@ -6,12 +6,6 @@ Public contracts for pluggable encoders, hashers, and encryptors.
 
 - [insaneio.insane.cryptography](../cryptography.md)
 
-## Related Packages
-
-- [insaneio.insane.cryptography.enums](../enums/enums.md)
-- [insaneio.insane.cryptography.extensions](../extensions/extensions.md)
-- [insaneio.insane.cryptography.serializers](../serializers/serializers.md)
-
 ## Usage Notes
 
 - Target these interfaces in APIs when you want callers to provide their own implementation.

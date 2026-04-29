@@ -6,11 +6,6 @@ Concrete serializers for security models.
 
 - [insaneio.insane.security](../security.md)
 
-## Related Packages
-
-- [insaneio.insane.security.enums](../enums/enums.md)
-- [insaneio.insane.security.extensions](../extensions/extensions.md)
-
 ## Usage Notes
 
 - This package controls the JSON representation of `TotpManager`.

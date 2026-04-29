@@ -2,6 +2,7 @@ package insaneio.insane.tests
 
 import insaneio.insane.cryptography.Base32Encoder
 import insaneio.insane.cryptography.HexEncoder
+import insaneio.insane.cryptography.enums.HashAlgorithm
 import insaneio.insane.extensions.capitalizeName
 import insaneio.insane.extensions.toByteArrayUtf8
 import insaneio.insane.security.TotpManager
@@ -91,6 +92,58 @@ class TotpManagerUnitTests {
         assertEquals(manager.computeCode(now), manager.computeTotpCode(now))
         assertEquals(manager.verifyCode(code, now), manager.verifyTotpCode(code, now))
         assertEquals(manager.computeRemainingSeconds(now), manager.computeTotpRemainingSeconds(now))
+    }
+
+    @Test
+    fun computeCode_ShouldNormalizeMd5AndSha384ToSha1() {
+        val now = Instant.ofEpochMilli(codes.first().second)
+        val sha1Manager = TotpManager(
+            secret = manager.secret,
+            issuer = manager.issuer,
+            label = manager.label,
+            hashAlgorithm = HashAlgorithm.Sha1
+        )
+        val md5Manager = TotpManager(
+            secret = manager.secret,
+            issuer = manager.issuer,
+            label = manager.label,
+            hashAlgorithm = HashAlgorithm.Md5
+        )
+        val sha384Manager = TotpManager(
+            secret = manager.secret,
+            issuer = manager.issuer,
+            label = manager.label,
+            hashAlgorithm = HashAlgorithm.Sha384
+        )
+
+        assertEquals(sha1Manager.computeCode(now), md5Manager.computeCode(now))
+        assertEquals(sha1Manager.computeCode(now), sha384Manager.computeCode(now))
+    }
+
+    @Test
+    fun toOtpUri_ShouldNormalizeMd5AndSha384ToSha1() {
+        val sha1Manager = TotpManager(
+            secret = manager.secret,
+            issuer = manager.issuer,
+            label = manager.label,
+            hashAlgorithm = HashAlgorithm.Sha1
+        )
+        val md5Manager = TotpManager(
+            secret = manager.secret,
+            issuer = manager.issuer,
+            label = manager.label,
+            hashAlgorithm = HashAlgorithm.Md5
+        )
+        val sha384Manager = TotpManager(
+            secret = manager.secret,
+            issuer = manager.issuer,
+            label = manager.label,
+            hashAlgorithm = HashAlgorithm.Sha384
+        )
+
+        assertEquals(sha1Manager.toOtpUri(), md5Manager.toOtpUri())
+        assertEquals(sha1Manager.toOtpUri(), sha384Manager.toOtpUri())
+        assertTrue(sha384Manager.toOtpUri().contains("algorithm=SHA1"))
     }
 
     @Test

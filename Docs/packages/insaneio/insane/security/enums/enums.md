@@ -6,11 +6,6 @@ Enums for TOTP code length and time-window tolerance.
 
 - [insaneio.insane.security](../security.md)
 
-## Related Packages
-
-- [insaneio.insane.security.extensions](../extensions/extensions.md)
-- [insaneio.insane.security.serializers](../serializers/serializers.md)
-
 ## Usage Notes
 
 - These enums keep TOTP APIs explicit and self-documenting.

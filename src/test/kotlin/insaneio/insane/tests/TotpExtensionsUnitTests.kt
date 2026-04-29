@@ -146,6 +146,23 @@ class TotpExtensionsUnitTests {
     }
 
     @Test
+    fun computeTotpCode_ShouldNormalizeSha384ToSha1() {
+        val sha1 = secret.computeTotpCode(fixedTime, TwoFactorCodeLength.SixDigits, HashAlgorithm.Sha1)
+        val sha384 = secret.computeTotpCode(fixedTime, TwoFactorCodeLength.SixDigits, HashAlgorithm.Sha384)
+
+        assertEquals(sha1, sha384)
+    }
+
+    @Test
+    fun generateTotpUri_ShouldNormalizeSha384ToSha1() {
+        val sha1Uri = secret.generateTotpUri("user@example.com", "Insane IO", HashAlgorithm.Sha1)
+        val sha384Uri = secret.generateTotpUri("user@example.com", "Insane IO", HashAlgorithm.Sha384)
+
+        assertEquals(sha1Uri, sha384Uri)
+        assertTrue(sha384Uri.contains("algorithm=SHA1"))
+    }
+
+    @Test
     fun computeTotpCode_ShouldMatchRfcVectorsForSupportedAlgorithms() {
         assertEquals("94287082", rfcSha1Secret.computeTotpCode(rfcTime, TwoFactorCodeLength.EightDigits, HashAlgorithm.Sha1))
         assertEquals("46119246", rfcSha256Secret.computeTotpCode(rfcTime, TwoFactorCodeLength.EightDigits, HashAlgorithm.Sha256))

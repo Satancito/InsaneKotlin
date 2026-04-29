@@ -6,12 +6,6 @@ Public enums that describe algorithms, encodings, paddings, and key formats.
 
 - [insaneio.insane.cryptography](../cryptography.md)
 
-## Related Packages
-
-- [insaneio.insane.cryptography.abstractions](../abstractions/abstractions.md)
-- [insaneio.insane.cryptography.extensions](../extensions/extensions.md)
-- [insaneio.insane.cryptography.serializers](../serializers/serializers.md)
-
 ## Usage Notes
 
 - Enums are part of the public contract and serialize as strings.

@@ -16,14 +16,14 @@ const val TOTP_DEFAULT_PERIOD: UInt = 30U
 
 private fun HashAlgorithm.normalizeTotpAlgorithm(): HashAlgorithm = when (this) {
     HashAlgorithm.Md5 -> HashAlgorithm.Sha1
+    HashAlgorithm.Sha384 -> HashAlgorithm.Sha1
     else -> this
 }
 
-private fun HashAlgorithm.getTotpAlgorithmName(): String = when (normalizeTotpAlgorithm()) {
-    HashAlgorithm.Sha1 -> "SHA1"
+private fun HashAlgorithm.getTotpAlgorithmName(): String = when (this) {
+    HashAlgorithm.Md5, HashAlgorithm.Sha1, HashAlgorithm.Sha384 -> "SHA1"
     HashAlgorithm.Sha256 -> "SHA256"
     HashAlgorithm.Sha512 -> "SHA512"
-    else -> throw IllegalArgumentException("Hash algorithm '$this' is not supported for TOTP.")
 }
 
 private fun Long.toBigEndianByteArray(): ByteArray {

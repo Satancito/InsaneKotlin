@@ -4,6 +4,54 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.1
+
+This patch release refines the public documentation structure, adds high-level module guides, and tightens TOTP normalization behavior.
+
+### TOTP
+
+Updated:
+
+- `Sha384` normalization to `Sha1` for TOTP flows
+- explicit RFC algorithm-name normalization in generated `otpauth://` URIs
+
+Behavior:
+
+- `Md5` and `Sha384` now both normalize to `Sha1`
+- this normalization applies to:
+  - code generation
+  - code verification
+  - generated OTP URIs
+
+### Testing
+
+Added or expanded coverage for:
+
+- `Md5` normalization to `Sha1` in `TotpExtensions`
+- `Sha384` normalization to `Sha1` in `TotpExtensions`
+- `Md5` normalization to `Sha1` in `TotpManager`
+- `Sha384` normalization to `Sha1` in `TotpManager`
+- URI normalization assertions for both algorithms
+
+### Documentation
+
+Added or improved:
+
+- high-level `Docs/Cryptography.md`
+- high-level `Docs/Security.md`
+- richer package-level documentation for cryptography, security, and shared extensions
+- removal of visually noisy `Related Packages` sections from package docs
+- explicit TOTP notes documenting that `Md5` and `Sha384` normalize to `Sha1`
+
+### Publishing
+
+Updated:
+
+- library version to `10.5.1`
+- README dependency examples for Maven coordinates and JitPack
+
+---
+
 ## 10.5.0
 
 This version completes the current TOTP parity work, adds incremental package registration for dynamic deserialization, expands the public documentation in English, and prepares the project for JitPack consumption.

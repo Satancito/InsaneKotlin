@@ -6,12 +6,6 @@ Concrete kotlinx.serialization serializers for cryptography models.
 
 - [insaneio.insane.cryptography](../cryptography.md)
 
-## Related Packages
-
-- [insaneio.insane.cryptography.abstractions](../abstractions/abstractions.md)
-- [insaneio.insane.cryptography.enums](../enums/enums.md)
-- [insaneio.insane.cryptography.extensions](../extensions/extensions.md)
-
 ## Usage Notes
 
 - These types define the JSON contract of concrete crypto models.

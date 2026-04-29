@@ -6,14 +6,6 @@ Runtime annotations used by infrastructure such as dynamic serialization.
 
 - [insaneio.insane](../insane.md)
 
-## Related Packages
-
-- [insaneio.insane.cryptography](../cryptography/cryptography.md)
-- [insaneio.insane.extensions](../extensions/extensions.md)
-- [insaneio.insane.misc](../misc/misc.md)
-- [insaneio.insane.security](../security/security.md)
-- [insaneio.insane.serialization](../serialization/serialization.md)
-
 ## Usage Notes
 
 - Annotations are read by runtime infrastructure; they do not do work on their own.

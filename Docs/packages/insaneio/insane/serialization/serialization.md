@@ -10,14 +10,6 @@ Core serialization contracts and type resolution infrastructure.
 
 - [insaneio.insane.serialization.serializers](serializers/serializers.md): Reusable infrastructure serializers, especially for enums.
 
-## Related Packages
-
-- [insaneio.insane.annotations](../annotations/annotations.md)
-- [insaneio.insane.cryptography](../cryptography/cryptography.md)
-- [insaneio.insane.extensions](../extensions/extensions.md)
-- [insaneio.insane.misc](../misc/misc.md)
-- [insaneio.insane.security](../security/security.md)
-
 ## Usage Notes
 
 - Read this package first if you are extending dynamic deserialization.

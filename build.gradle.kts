@@ -8,7 +8,7 @@ plugins {
 val artifactIdValue = "insane"
 
 group = "insaneio"
-version = "10.5.0"
+version = "10.5.1"
 
 repositories {
     mavenCentral()
