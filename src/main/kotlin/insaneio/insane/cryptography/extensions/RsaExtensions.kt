@@ -97,6 +97,34 @@ private val rsaXmlPrivateKeyRegex = Regex(RSA_XML_PRIVATE_KEY_REGEX_PATTERN)
 private val rsaPemPublicKeyRegex = Regex(RSA_PEM_PUBLIC_KEY_REGEX_PATTERN)
 private val rsaPemPrivateKeyRegex = Regex(RSA_PEM_PRIVATE_KEY_REGEX_PATTERN)
 
+private fun String.isPemEnveloped(header: String, footer: String): Boolean {
+    return this.startsWith(header) && this.endsWith(footer)
+}
+
+private fun String.isXmlEnveloped(): Boolean {
+    return this.startsWith(RSA_XML_KEY_INITIAL_MAIN_TAG) && this.endsWith(RSA_XML_KEY_FINAL_MAIN_TAG)
+}
+
+private fun String.extractPemBodyIfValid(header: String, footer: String): String? {
+    if (!isPemEnveloped(header, footer)) {
+        return null
+    }
+
+    val body = this
+        .removePrefix(header)
+        .removeSuffix(footer)
+        .trim()
+        .replace(CARRIAGE_RETURN_STRING, EMPTY_STRING)
+        .replace(LINE_FEED_STRING, EMPTY_STRING)
+
+    return body.takeIf { it.isNotEmpty() && base64ValueRegex.matches(it) }
+}
+
+private fun org.w3c.dom.Document.getRequiredElementTextOrNull(name: String): String? {
+    val node = this.getElementsByTagName(name).item(0) ?: return null
+    return node.textContent?.trim()?.takeIf { it.isNotEmpty() }
+}
+
 
 internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
     val keyString = this.trim()
@@ -119,29 +147,47 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
     }
 
     try {
-        if (keyString.startsWith(RSA_XML_KEY_MAIN_TAG)) {
+        if (keyString.isXmlEnveloped()) {
             val reader = StringReader(keyString)
             val documentBuilderFactory = DocumentBuilderFactory.newInstance()
             val documentBuilder = documentBuilderFactory.newDocumentBuilder()
             val document = documentBuilder.parse(InputSource(reader))
-            if (rsaXmlPrivateKeyRegex.matches(keyString)) {
-                val modulus = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_MODULUS_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val exponent = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_EXPONENT_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val p = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_P_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val q = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_Q_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val dp = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_DP_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val dq = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_DQ_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val inverseQ = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_INVERSE_Q_NODE).item(0).textContent).toBigIntegerWithSignBit()
-                val d = encoder.decode(document.getElementsByTagName(RSA_XML_KEY_D_NODE).item(0).textContent).toBigIntegerWithSignBit()
+
+            val modulusText = document.getRequiredElementTextOrNull(RSA_XML_KEY_MODULUS_NODE)
+            val exponentText = document.getRequiredElementTextOrNull(RSA_XML_KEY_EXPONENT_NODE)
+            val pText = document.getRequiredElementTextOrNull(RSA_XML_KEY_P_NODE)
+            val qText = document.getRequiredElementTextOrNull(RSA_XML_KEY_Q_NODE)
+            val dpText = document.getRequiredElementTextOrNull(RSA_XML_KEY_DP_NODE)
+            val dqText = document.getRequiredElementTextOrNull(RSA_XML_KEY_DQ_NODE)
+            val inverseQText = document.getRequiredElementTextOrNull(RSA_XML_KEY_INVERSE_Q_NODE)
+            val dText = document.getRequiredElementTextOrNull(RSA_XML_KEY_D_NODE)
+
+            if (modulusText != null &&
+                exponentText != null &&
+                pText != null &&
+                qText != null &&
+                dpText != null &&
+                dqText != null &&
+                inverseQText != null &&
+                dText != null
+            ) {
+                val modulus = encoder.decode(modulusText).toBigIntegerWithSignBit()
+                val exponent = encoder.decode(exponentText).toBigIntegerWithSignBit()
+                val p = encoder.decode(pText).toBigIntegerWithSignBit()
+                val q = encoder.decode(qText).toBigIntegerWithSignBit()
+                val dp = encoder.decode(dpText).toBigIntegerWithSignBit()
+                val dq = encoder.decode(dqText).toBigIntegerWithSignBit()
+                val inverseQ = encoder.decode(inverseQText).toBigIntegerWithSignBit()
+                val d = encoder.decode(dText).toBigIntegerWithSignBit()
 
                 val keySpec = RSAPrivateCrtKeySpec(modulus, exponent, d, p, q, dp, dq, inverseQ)
                 val key = keyFactory.generatePrivate(keySpec)
                 return Pair(RsaKeyEncoding.XmlPrivate, key)
             }
 
-            if (rsaXmlPublicKeyRegex.matches(keyString)) {
-                val modulus = (encoder.decode(document.getElementsByTagName(RSA_XML_KEY_MODULUS_NODE).item(0).textContent)).toBigIntegerWithSignBit()
-                val exponent = (encoder.decode(document.getElementsByTagName(RSA_XML_KEY_EXPONENT_NODE).item(0).textContent)).toBigIntegerWithSignBit()
+            if (modulusText != null && exponentText != null) {
+                val modulus = encoder.decode(modulusText).toBigIntegerWithSignBit()
+                val exponent = encoder.decode(exponentText).toBigIntegerWithSignBit()
 
                 val keySpec = RSAPublicKeySpec(modulus, exponent)
                 val key = keyFactory.generatePublic(keySpec)
@@ -150,14 +196,16 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
         }
 
         if (keyString.startsWith(RSA_PEM_KEY_INITIAL_TEXT_HEADER)) {
-            if (rsaPemPrivateKeyRegex.matches(keyString)) {
-                val keySpec = PKCS8EncodedKeySpec(encoder.decode(keyString.removePrefix(RSA_PEM_PRIVATE_KEY_HEADER).removeSuffix(RSA_PEM_PRIVATE_KEY_FOOTER).trim()))
+            val privatePemBody = keyString.extractPemBodyIfValid(RSA_PEM_PRIVATE_KEY_HEADER, RSA_PEM_PRIVATE_KEY_FOOTER)
+            if (privatePemBody != null) {
+                val keySpec = PKCS8EncodedKeySpec(encoder.decode(privatePemBody))
                 val key = keyFactory.generatePrivate(keySpec)
                 return Pair(RsaKeyEncoding.PemPrivate, key)
             }
 
-            if (rsaPemPublicKeyRegex.matches(keyString)) {
-                val keySpec = X509EncodedKeySpec(encoder.decode(keyString.removePrefix(RSA_PEM_PUBLIC_KEY_HEADER).removeSuffix(RSA_PEM_PUBLIC_KEY_FOOTER).trim()))
+            val publicPemBody = keyString.extractPemBodyIfValid(RSA_PEM_PUBLIC_KEY_HEADER, RSA_PEM_PUBLIC_KEY_FOOTER)
+            if (publicPemBody != null) {
+                val keySpec = X509EncodedKeySpec(encoder.decode(publicPemBody))
                 val key = keyFactory.generatePublic(keySpec)
                 return Pair(RsaKeyEncoding.PemPublic, key)
             }
@@ -265,7 +313,3 @@ fun ByteArray.decryptRsa(privateKey: String, padding: RsaPadding = RsaPadding.Oa
 fun String.decryptRsaFromEncoded(privateKey: String, encoder: IEncoder, padding: RsaPadding = RsaPadding.OaepSha256): ByteArray {
     return encoder.decode(this).decryptRsa(privateKey, padding)
 }
-
-
-
-

@@ -4,6 +4,51 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.2
+
+This patch release hardens RSA key detection and validation by moving PEM and XML checks toward envelope-first parsing instead of depending on complex regex validation.
+
+### RSA validation
+
+Updated:
+
+- PEM key detection now checks whether the value is properly enveloped with the expected header and footer
+- PEM key bodies are now explicitly validated as Base64 before key parsing
+- XML key detection now checks for the XML envelope first and then validates by parsing the XML document and reading the required nodes
+
+Fixed:
+
+- `RSA_XML_KEY_FINAL_MAIN_TAG` now correctly uses the closing `</RSAKeyValue>` tag
+
+Impact:
+
+- RSA key detection is easier to reason about
+- malformed PEM bodies fail earlier and more clearly
+- XML key validation no longer depends on regex ordering tricks
+
+### Testing
+
+Added or expanded coverage for:
+
+- invalid PEM bodies that are enveloped but not valid Base64
+- RSA XML key detection through the updated parsing flow
+
+### Documentation
+
+Updated:
+
+- version references in `README.md`
+- release notes in this changelog
+
+### Publishing
+
+Updated:
+
+- library version to `10.5.2`
+- README dependency examples for Maven coordinates and JitPack
+
+---
+
 ## 10.5.1
 
 This patch release refines the public documentation structure, adds high-level module guides, and tightens TOTP normalization behavior.

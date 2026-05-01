@@ -77,6 +77,25 @@ class RsaExtensionsUnitTests {
     }
 
     @Test
+    fun validateRsaKeys_ShouldRejectPemWithInvalidBase64Body() {
+        val invalidPublicPem = """
+            -----BEGIN PUBLIC KEY-----
+            not_base64!!
+            -----END PUBLIC KEY-----
+        """.trimIndent()
+        val invalidPrivatePem = """
+            -----BEGIN PRIVATE KEY-----
+            not_base64!!
+            -----END PRIVATE KEY-----
+        """.trimIndent()
+
+        assertFalse(invalidPublicPem.validateRsaPublicKey())
+        assertFalse(invalidPrivatePem.validateRsaPrivateKey())
+        assertEquals(RsaKeyEncoding.Unknown, invalidPublicPem.getRsaKeyEncoding())
+        assertEquals(RsaKeyEncoding.Unknown, invalidPrivatePem.getRsaKeyEncoding())
+    }
+
+    @Test
     fun validateRsaKeys_ShouldSupportIndentedXmlEncoding() {
         assertValidateRsaKey(RsaTestConstants.publicKeyXml, RsaTestConstants.privateKeyXml)
     }

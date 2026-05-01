@@ -314,6 +314,13 @@ It does not itself perform encryption. Instead, it carries the key text in one o
 - `RsaEncryptor` can consume it
 - JSON serialization can persist it
 
+For imported PEM and XML values, the validation flow is intentionally structural:
+
+- PEM values are first checked for the expected header/footer envelope
+- the PEM body is then validated as Base64 before key parsing
+- XML values are first checked for the `<RSAKeyValue> ... </RSAKeyValue>` envelope
+- the XML is then parsed and the required nodes are read from the document
+
 Typical flow:
 
 ```kotlin
