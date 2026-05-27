@@ -4,6 +4,41 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.6
+
+This patch release updates the project to a Gradle version catalog, upgrades Kotlin and kotlinx.serialization, and aligns the IDE/compiler metadata with the new toolchain.
+
+### Build
+
+Added or improved:
+
+- centralized dependency and plugin versions in `gradle/libs.versions.toml`
+- upgraded Kotlin and Kotlin serialization plugin to `2.3.21`
+- upgraded `kotlinx-serialization-json` to `1.11.0`
+- aligned Gradle compiler `apiVersion` and `languageVersion` to Kotlin `2.3`
+
+### IDE
+
+Updated:
+
+- `.idea/kotlinc.xml` to keep IntelliJ compiler metadata aligned with the Gradle Kotlin toolchain
+
+### Validation
+
+Confirmed:
+
+- `compileKotlin` succeeds with the new catalog and Kotlin toolchain
+- `test` remains green after the Kotlin and serialization upgrades
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.6`
+- README dependency example to `10.5.6`
+
+---
+
 ## 10.5.5
 
 This patch release removes JitPack support and keeps Maven Central as the primary distribution channel.

@@ -3,8 +3,8 @@ import java.net.HttpURLConnection
 import java.util.Base64
 
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.serialization") version "2.2.21"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
     `java-library`
     `maven-publish`
     signing
@@ -35,7 +35,7 @@ val sonatypeCentralPasswordProvider = projectOrEnv("SONATYPE_CENTRAL_PASSWORD")
 val sonatypeCentralPublishingTypeProvider = projectOrEnv("SONATYPE_CENTRAL_PUBLISHING_TYPE").orElse("user_managed")
 
 group = "com.insaneio"
-version = "10.5.5"
+version = "10.5.6"
 
 repositories {
     mavenCentral()
@@ -56,19 +56,19 @@ kotlin {
 
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
-        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
     }
 }
 
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation(kotlin("reflect"))
-    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.bouncycastle.bcprov)
 
-    testImplementation(kotlin("test-junit5"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.junit.jupiter)
 }
 
 tasks.test {
