@@ -35,7 +35,7 @@ val sonatypeCentralPasswordProvider = projectOrEnv("SONATYPE_CENTRAL_PASSWORD")
 val sonatypeCentralPublishingTypeProvider = projectOrEnv("SONATYPE_CENTRAL_PUBLISHING_TYPE").orElse("user_managed")
 
 group = "com.insaneio"
-version = "10.5.3"
+version = "10.5.4"
 
 repositories {
     mavenCentral()

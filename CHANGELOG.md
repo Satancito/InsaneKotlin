@@ -4,6 +4,39 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.4
+
+This patch release finalizes the publishing workflow with a stronger GPG fallback path, keeps dependency declarations pinned to fixed versions, and refreshes release documentation for the new package version.
+
+### Publishing
+
+Improved:
+
+- `Invoke-Publishing.ps1` now falls back to common Windows `gpg.exe` locations when `gpg` is not available in `PATH`
+- public key upload verification is more tolerant of `keys.openpgp.org` responses that omit visible user IDs
+
+### Build
+
+Confirmed:
+
+- published dependency declarations remain pinned to fixed versions
+- the Gradle publishing flow continues to run `test` before upload
+
+### Documentation
+
+Updated:
+
+- publishing documentation now explicitly states that dependency versions are fixed in `build.gradle.kts`
+- README dependency examples now reference `10.5.4`
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.4`
+
+---
+
 ## 10.5.3
 
 This patch release consolidates the publishing tooling, simplifies secret resolution boundaries, and adds a full Maven Central publishing guide.

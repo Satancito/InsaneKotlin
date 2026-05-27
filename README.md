@@ -12,7 +12,7 @@ Insane Kotlin JVM/Android port compatible with Java 8 bytecode and Android-orien
 ## Coordinates
 
 ```kotlin
-implementation("com.insaneio:insane:10.5.3")
+implementation("com.insaneio:insane:10.5.4")
 ```
 
 ## JitPack
@@ -31,5 +31,5 @@ repositories {
 Dependency:
 
 ```kotlin
-implementation("com.github.Satancito:InsaneKotlin:10.5.3")
+implementation("com.github.Satancito:InsaneKotlin:10.5.4")
 ```

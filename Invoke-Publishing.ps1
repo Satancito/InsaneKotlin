@@ -283,7 +283,18 @@ function Get-KeyServerList {
 function Get-GpgExecutablePath {
     $gpgCommand = Get-Command gpg -ErrorAction SilentlyContinue
     if ($null -eq $gpgCommand -or [string]::IsNullOrWhiteSpace($gpgCommand.Source)) {
-        throw "GPG was not found in PATH. Install GnuPG or make sure 'gpg' is available."
+        $fallbackPaths = @(
+            "C:\Program Files\GnuPG\bin\gpg.exe",
+            "C:\Program Files\Git\usr\bin\gpg.exe"
+        )
+
+        foreach ($fallbackPath in $fallbackPaths) {
+            if (Test-Path -LiteralPath $fallbackPath -PathType Leaf) {
+                return $fallbackPath
+            }
+        }
+
+        throw "GPG was not found in PATH and no supported fallback location was found. Install GnuPG or make sure 'gpg' is available."
     }
 
     if (-not (Test-Path -LiteralPath $gpgCommand.Source -PathType Leaf)) {

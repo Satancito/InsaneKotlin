@@ -24,6 +24,7 @@ The publishing flow in this repository intentionally separates responsibilities:
 
 - `Invoke-Publishing.ps1` is responsible for local secret resolution, local file creation, editor integration, and preparing environment variables for Gradle
 - `build.gradle.kts` is responsible for building, signing, and publishing artifacts once the required environment variables are already present
+- runtime and build dependencies are declared with fixed versions in `build.gradle.kts` for reproducible builds and releases
 
 This keeps secret-handling logic out of the Gradle build itself.
 
