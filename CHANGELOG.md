@@ -4,6 +4,27 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.5
+
+This patch release removes JitPack support and keeps Maven Central as the primary distribution channel.
+
+### Publishing
+
+Changed:
+
+- removed `jitpack.yml`
+- removed the active JitPack consumption section from the README
+- Maven Central remains the supported publication path for this repository
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.5`
+- README dependency example to `10.5.5`
+
+---
+
 ## 10.5.4
 
 This patch release finalizes the publishing workflow with a stronger GPG fallback path, keeps dependency declarations pinned to fixed versions, and refreshes release documentation for the new package version.
