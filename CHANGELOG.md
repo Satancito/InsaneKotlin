@@ -4,6 +4,32 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.7
+
+This patch release fixes a remaining serializer package declaration that still pointed to the pre-migration namespace.
+
+### Serialization
+
+Fixed:
+
+- corrected `StrictEnumAsIntSerializer.java` from `insaneio.insane.serialization.serializers` to `com.insaneio.insane.serialization.serializers`
+
+### Validation
+
+Confirmed:
+
+- `compileKotlin` succeeds after the namespace correction
+- `test` remains green after the hotfix
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.7`
+- README dependency example to `10.5.7`
+
+---
+
 ## 10.5.6
 
 This patch release updates the project to a Gradle version catalog, upgrades Kotlin and kotlinx.serialization, and aligns the IDE/compiler metadata with the new toolchain.

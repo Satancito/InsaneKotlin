@@ -1,4 +1,4 @@
-package insaneio.insane.serialization.serializers;
+package com.insaneio.insane.serialization.serializers;
 
 public class StrictEnumAsIntSerializer {
 }
