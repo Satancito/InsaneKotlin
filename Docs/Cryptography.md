@@ -1,16 +1,16 @@
 # Cryptography
 
-This document is the high-level entry point for the `insaneio.insane.cryptography` surface.
+This document is the high-level entry point for the `com.insaneio.insane.cryptography` surface.
 
 Use it when you want to understand how the cryptography module is organized, which APIs you should reach for first, and how the concrete classes, extension helpers, enums, and serializers fit together.
 
 If you want package-by-package reference material, see:
 
 - [Packages Index](packages/packages.md)
-- [insaneio.insane.cryptography](packages/insaneio/insane/cryptography/cryptography.md)
-- [insaneio.insane.cryptography.extensions](packages/insaneio/insane/cryptography/extensions/extensions.md)
-- [insaneio.insane.cryptography.abstractions](packages/insaneio/insane/cryptography/abstractions/abstractions.md)
-- [insaneio.insane.cryptography.enums](packages/insaneio/insane/cryptography/enums/enums.md)
+- [com.insaneio.insane.cryptography](packages/com/insaneio/insane/cryptography/cryptography.md)
+- [com.insaneio.insane.cryptography.extensions](packages/com/insaneio/insane/cryptography/extensions/extensions.md)
+- [com.insaneio.insane.cryptography.abstractions](packages/com/insaneio/insane/cryptography/abstractions/abstractions.md)
+- [com.insaneio.insane.cryptography.enums](packages/com/insaneio/insane/cryptography/enums/enums.md)
 
 ## What the cryptography module provides
 
@@ -58,11 +58,11 @@ Use concrete classes when you want:
 Example:
 
 ```kotlin
-import insaneio.insane.cryptography.AesCbcEncryptor
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.ShaHasher
-import insaneio.insane.cryptography.enums.AesCbcPadding
-import insaneio.insane.cryptography.enums.HashAlgorithm
+import com.insaneio.insane.cryptography.AesCbcEncryptor
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.ShaHasher
+import com.insaneio.insane.cryptography.enums.AesCbcPadding
+import com.insaneio.insane.cryptography.enums.HashAlgorithm
 
 val encoder = Base64Encoder()
 val hasher = ShaHasher(
@@ -92,12 +92,12 @@ Use extension functions when you want:
 Example:
 
 ```kotlin
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.enums.HashAlgorithm
-import insaneio.insane.cryptography.enums.RsaKeyPairEncoding
-import insaneio.insane.cryptography.extensions.computeHashEncoded
-import insaneio.insane.cryptography.extensions.createRsaKeyPair
-import insaneio.insane.cryptography.extensions.encryptRsaEncoded
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.enums.HashAlgorithm
+import com.insaneio.insane.cryptography.enums.RsaKeyPairEncoding
+import com.insaneio.insane.cryptography.extensions.computeHashEncoded
+import com.insaneio.insane.cryptography.extensions.createRsaKeyPair
+import com.insaneio.insane.cryptography.extensions.encryptRsaEncoded
 
 val encoder = Base64Encoder.defaultInstance
 val digest = "hello".computeHashEncoded(encoder, HashAlgorithm.Sha256)
@@ -123,8 +123,8 @@ Use `Base64Encoder` when you need:
 Typical use:
 
 ```kotlin
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.enums.Base64Encoding
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.enums.Base64Encoding
 
 val encoder = Base64Encoder(
     lineBreaksLength = 76U,
@@ -147,7 +147,7 @@ Use `Base32Encoder` when you need:
 Typical use:
 
 ```kotlin
-import insaneio.insane.cryptography.Base32Encoder
+import com.insaneio.insane.cryptography.Base32Encoder
 
 val encoder = Base32Encoder(removePadding = true)
 val base32 = encoder.encode("secret-seed")
@@ -165,7 +165,7 @@ Use `HexEncoder` when you want:
 Typical use:
 
 ```kotlin
-import insaneio.insane.cryptography.HexEncoder
+import com.insaneio.insane.cryptography.HexEncoder
 
 val encoder = HexEncoder(toUpper = true)
 val hex = encoder.encode("payload")
@@ -181,9 +181,9 @@ Hashers wrap both the algorithm and the output policy.
 Use it for plain message digests.
 
 ```kotlin
-import insaneio.insane.cryptography.HexEncoder
-import insaneio.insane.cryptography.ShaHasher
-import insaneio.insane.cryptography.enums.HashAlgorithm
+import com.insaneio.insane.cryptography.HexEncoder
+import com.insaneio.insane.cryptography.ShaHasher
+import com.insaneio.insane.cryptography.enums.HashAlgorithm
 
 val hasher = ShaHasher(
     encoder = HexEncoder(),
@@ -199,9 +199,9 @@ val valid = hasher.verifyEncoded("payload", digest)
 Use it when you need a secret-key MAC instead of a public digest.
 
 ```kotlin
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.HmacHasher
-import insaneio.insane.cryptography.enums.HashAlgorithm
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.HmacHasher
+import com.insaneio.insane.cryptography.enums.HashAlgorithm
 
 val hasher = HmacHasher(
     key = "shared-secret",
@@ -218,8 +218,8 @@ val valid = hasher.verifyEncoded("payload", mac)
 Use it when you want a password-oriented KDF with reusable Scrypt parameters.
 
 ```kotlin
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.ScryptHasher
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.ScryptHasher
 
 val hasher = ScryptHasher(
     salt = "application-salt",
@@ -235,9 +235,9 @@ val valid = hasher.verifyEncoded("password", encoded)
 Use it when you prefer Argon2 and need explicit control over variant and cost settings.
 
 ```kotlin
-import insaneio.insane.cryptography.Argon2Hasher
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.enums.Argon2Variant
+import com.insaneio.insane.cryptography.Argon2Hasher
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.enums.Argon2Variant
 
 val hasher = Argon2Hasher(
     salt = "application-salt",
@@ -262,9 +262,9 @@ Use it for symmetric encryption where:
 - you want encoded output helpers
 
 ```kotlin
-import insaneio.insane.cryptography.AesCbcEncryptor
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.enums.AesCbcPadding
+import com.insaneio.insane.cryptography.AesCbcEncryptor
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.enums.AesCbcPadding
 
 val encryptor = AesCbcEncryptor(
     key = "my-secret-key",
@@ -285,11 +285,11 @@ Use it for asymmetric encryption where:
 - you want PEM, BER, or XML-compatible key handling
 
 ```kotlin
-import insaneio.insane.cryptography.Base64Encoder
-import insaneio.insane.cryptography.RsaEncryptor
-import insaneio.insane.cryptography.enums.RsaKeyPairEncoding
-import insaneio.insane.cryptography.enums.RsaPadding
-import insaneio.insane.cryptography.extensions.createRsaKeyPair
+import com.insaneio.insane.cryptography.Base64Encoder
+import com.insaneio.insane.cryptography.RsaEncryptor
+import com.insaneio.insane.cryptography.enums.RsaKeyPairEncoding
+import com.insaneio.insane.cryptography.enums.RsaPadding
+import com.insaneio.insane.cryptography.extensions.createRsaKeyPair
 
 val keyPair = 2048U.createRsaKeyPair(RsaKeyPairEncoding.Pem)
 val encryptor = RsaEncryptor(
@@ -324,12 +324,12 @@ For imported PEM and XML values, the validation flow is intentionally structural
 Typical flow:
 
 ```kotlin
-import insaneio.insane.cryptography.enums.RsaKeyPairEncoding
-import insaneio.insane.cryptography.extensions.createRsaKeyPair
+import com.insaneio.insane.cryptography.enums.RsaKeyPairEncoding
+import com.insaneio.insane.cryptography.extensions.createRsaKeyPair
 
 val keyPair = 2048U.createRsaKeyPair(RsaKeyPairEncoding.Pem)
 val json = keyPair.serialize(indented = true)
-val restored = insaneio.insane.cryptography.RsaKeyPair.deserialize(json)
+val restored = com.insaneio.insane.cryptography.RsaKeyPair.deserialize(json)
 ```
 
 ## Serialization and dynamic deserialization
@@ -353,15 +353,15 @@ This is especially useful for:
 See:
 
 - [Security](Security.md)
-- [insaneio.insane.serialization](packages/insaneio/insane/serialization/serialization.md)
+- [com.insaneio.insane.serialization](packages/com/insaneio/insane/serialization/serialization.md)
 
 ## Recommended starting points
 
 If you are new to the module, start here:
 
-1. [insaneio.insane.cryptography](packages/insaneio/insane/cryptography/cryptography.md)
-2. [insaneio.insane.cryptography.extensions](packages/insaneio/insane/cryptography/extensions/extensions.md)
-3. [insaneio.insane.cryptography.enums](packages/insaneio/insane/cryptography/enums/enums.md)
+1. [com.insaneio.insane.cryptography](packages/com/insaneio/insane/cryptography/cryptography.md)
+2. [com.insaneio.insane.cryptography.extensions](packages/com/insaneio/insane/cryptography/extensions/extensions.md)
+3. [com.insaneio.insane.cryptography.enums](packages/com/insaneio/insane/cryptography/enums/enums.md)
 
 If your next step is TOTP rather than general cryptography, continue with:
 

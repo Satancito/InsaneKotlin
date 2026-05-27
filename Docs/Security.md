@@ -1,15 +1,15 @@
 # Security
 
-This document is the high-level entry point for the `insaneio.insane.security` surface.
+This document is the high-level entry point for the `com.insaneio.insane.security` surface.
 
 Use it when you want to understand how TOTP is modeled in the library, how the helper-based API and the object-oriented API fit together, and how window tolerance, URI generation, and serialization behave.
 
 For package-level reference material, see:
 
 - [Packages Index](packages/packages.md)
-- [insaneio.insane.security](packages/insaneio/insane/security/security.md)
-- [insaneio.insane.security.extensions](packages/insaneio/insane/security/extensions/extensions.md)
-- [insaneio.insane.security.enums](packages/insaneio/insane/security/enums/enums.md)
+- [com.insaneio.insane.security](packages/com/insaneio/insane/security/security.md)
+- [com.insaneio.insane.security.extensions](packages/com/insaneio/insane/security/extensions/extensions.md)
+- [com.insaneio.insane.security.enums](packages/com/insaneio/insane/security/enums/enums.md)
 
 ## What the security module provides
 
@@ -37,8 +37,8 @@ Use the extension API when:
 Example:
 
 ```kotlin
-import insaneio.insane.security.extensions.computeTotpCode
-import insaneio.insane.security.extensions.verifyTotpCode
+import com.insaneio.insane.security.extensions.computeTotpCode
+import com.insaneio.insane.security.extensions.verifyTotpCode
 
 val secret = "JBSWY3DPEHPK3PXP"
 val code = secret.computeTotpCode()
@@ -57,8 +57,8 @@ Use `TotpManager` when:
 Example:
 
 ```kotlin
-import insaneio.insane.security.TotpManager
-import insaneio.insane.security.enums.TotpTimeWindowTolerance
+import com.insaneio.insane.security.TotpManager
+import com.insaneio.insane.security.enums.TotpTimeWindowTolerance
 
 val manager = TotpManager.fromBase32Secret(
     base32EncodedSecret = "JBSWY3DPEHPK3PXP",
@@ -189,8 +189,8 @@ Use this when the secret is stored in another encoded form and you want to decod
 ## Example: full manager workflow
 
 ```kotlin
-import insaneio.insane.security.TotpManager
-import insaneio.insane.security.enums.TotpTimeWindowTolerance
+import com.insaneio.insane.security.TotpManager
+import com.insaneio.insane.security.enums.TotpTimeWindowTolerance
 
 val manager = TotpManager.fromBase32Secret(
     base32EncodedSecret = "JBSWY3DPEHPK3PXP",
@@ -224,9 +224,9 @@ Use this layer when you want direct control without creating a manager instance.
 Example:
 
 ```kotlin
-import insaneio.insane.security.enums.TotpTimeWindowTolerance
-import insaneio.insane.security.extensions.computeTotpCode
-import insaneio.insane.security.extensions.verifyTotpCode
+import com.insaneio.insane.security.enums.TotpTimeWindowTolerance
+import com.insaneio.insane.security.extensions.computeTotpCode
+import com.insaneio.insane.security.extensions.verifyTotpCode
 
 val secret = "JBSWY3DPEHPK3PXP"
 val code = secret.computeTotpCode()
@@ -270,5 +270,5 @@ So if you want to understand the lower layers too, continue with:
 
 For detailed package reference, continue with:
 
-- [insaneio.insane.security](packages/insaneio/insane/security/security.md)
-- [insaneio.insane.security.extensions](packages/insaneio/insane/security/extensions/extensions.md)
+- [com.insaneio.insane.security](packages/com/insaneio/insane/security/security.md)
+- [com.insaneio.insane.security.extensions](packages/com/insaneio/insane/security/extensions/extensions.md)

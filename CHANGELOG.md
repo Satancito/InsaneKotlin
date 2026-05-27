@@ -4,6 +4,59 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.3
+
+This patch release consolidates the publishing tooling, simplifies secret resolution boundaries, and adds a full Maven Central publishing guide.
+
+### Publishing
+
+Added or improved:
+
+- consolidated local publishing workflow into `Invoke-Publishing.ps1`
+- exclusive publishing modes for:
+  - editing local publishing secrets
+  - showing resolved publishing configuration
+  - uploading the public GPG key
+  - publishing the Maven package
+- public key upload verification across configured key servers
+- default safer editor behavior for secrets:
+  - `notepad` on Windows
+  - `vi` on Linux and macOS
+
+Changed:
+
+- `build.gradle.kts` no longer reads `env.json` or the local secrets file directly
+- local secrets resolution is now handled only by the PowerShell publishing script
+- `publishReleaseToCentralPortal` now runs `test` before publishing
+
+### Documentation
+
+Added:
+
+- `Docs/Publishing.md` with a full publishing walkthrough for Sonatype Central
+
+Improved:
+
+- publishing documentation now covers:
+  - Sonatype registration
+  - namespace verification
+  - GPG key generation
+  - token generation
+  - local `env.json` and `$HOME/.insane/<guid>.json` usage
+  - public key upload
+  - package publication
+  - `-Edit`, `-Show`, `-PublishPublicKey`, and `-PublishPackage`
+- publishing documentation was updated to keep a multiplatform perspective
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.3`
+- README dependency examples for Maven coordinates and JitPack
+
+---
+
 ## 10.5.2
 
 This patch release hardens RSA key detection and validation by moving PEM and XML checks toward envelope-first parsing instead of depending on complex regex validation.
@@ -105,7 +158,7 @@ This version completes the current TOTP parity work, adds incremental package re
 
 Added or improved:
 
-- `insaneio.insane.security.enums.TotpTimeWindowTolerance`
+- `com.insaneio.insane.security.enums.TotpTimeWindowTolerance`
 - tolerance-aware verification in `TotpExtensions`
 - tolerance-aware verification in `TotpManager`
 - RFC-compliant TOTP dynamic truncation using the last byte of the actual HMAC
@@ -163,9 +216,9 @@ This version aligns the Kotlin port with the current `.NET` TOTP surface and com
 
 Added:
 
-- `insaneio.insane.security.TotpManager`
-- `insaneio.insane.security.TwoFactorCodeLength`
-- `insaneio.insane.security.extensions.TotpExtensions`
+- `com.insaneio.insane.security.TotpManager`
+- `com.insaneio.insane.security.TwoFactorCodeLength`
+- `com.insaneio.insane.security.extensions.TotpExtensions`
 
 Capabilities:
 
@@ -186,7 +239,7 @@ Capabilities:
 Changes:
 
 - security and cryptography deserialization now rely only on `TypeIdentifier`
-- `TypeIdentifierResolver` was consolidated under `insaneio.insane.serialization`
+- `TypeIdentifierResolver` was consolidated under `com.insaneio.insane.serialization`
 - `TotpManager` was added to the runtime type identifier registry
 
 Impact:
@@ -221,10 +274,10 @@ This version reorganized the Kotlin cryptography surface and introduced stable d
 
 Changes:
 
-- crypto interfaces were grouped under `insaneio.insane.cryptography.abstractions`
-- crypto extensions were grouped under `insaneio.insane.cryptography.extensions`
-- crypto enums were grouped under `insaneio.insane.cryptography.enums`
-- crypto serializers were grouped under `insaneio.insane.cryptography.serializers`
+- crypto interfaces were grouped under `com.insaneio.insane.cryptography.abstractions`
+- crypto extensions were grouped under `com.insaneio.insane.cryptography.extensions`
+- crypto enums were grouped under `com.insaneio.insane.cryptography.enums`
+- crypto serializers were grouped under `com.insaneio.insane.cryptography.serializers`
 
 ### Dynamic Deserialization
 

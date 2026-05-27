@@ -1,10 +1,10 @@
-import insaneio.insane.cryptography.Base32Encoder
-import insaneio.insane.cryptography.enums.HashAlgorithm
-import insaneio.insane.security.enums.TotpTimeWindowTolerance
-import insaneio.insane.security.enums.TwoFactorCodeLength
-import insaneio.insane.security.extensions.computeTotpCode
-import insaneio.insane.security.extensions.computeTotpRemainingSeconds
-import insaneio.insane.security.extensions.verifyTotpCode
+import com.insaneio.insane.cryptography.Base32Encoder
+import com.insaneio.insane.cryptography.enums.HashAlgorithm
+import com.insaneio.insane.security.enums.TotpTimeWindowTolerance
+import com.insaneio.insane.security.enums.TwoFactorCodeLength
+import com.insaneio.insane.security.extensions.computeTotpCode
+import com.insaneio.insane.security.extensions.computeTotpRemainingSeconds
+import com.insaneio.insane.security.extensions.verifyTotpCode
 import java.time.Instant
 
 private const val BASE32_SECRET = "JBSWY3DPEHPK3PXP"
