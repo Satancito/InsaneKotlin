@@ -6,6 +6,7 @@ import com.insaneio.insane.cryptography.enums.*
 import com.insaneio.insane.cryptography.abstractions.IEncoder
 import com.insaneio.insane.cryptography.serializers.Base64EncoderSerializer
 import com.insaneio.insane.BASE64_NO_LINE_BREAKS_LENGTH
+import com.insaneio.insane.BASE64_PEM_LINE_BREAKS_LENGTH
 import com.insaneio.insane.cryptography.extensions.*
 import com.insaneio.insane.extensions.*
 import com.insaneio.insane.misc.ICompanionDefaultInstance
@@ -28,6 +29,7 @@ open class Base64Encoder(
         ICompanionJsonSerializable<Base64Encoder>,
         ICompanionDefaultInstance<Base64Encoder> {
         override val defaultInstance: Base64Encoder = Base64Encoder()
+        val pemDefaultInstance: Base64Encoder = Base64Encoder(lineBreaksLength = BASE64_PEM_LINE_BREAKS_LENGTH)
 
         override fun deserialize(json: String): Base64Encoder {
             return Json.decodeFromString<Base64Encoder>(json)
@@ -56,8 +58,5 @@ open class Base64Encoder(
     override fun serialize(indented: Boolean): String =
         IJsonSerializable.getJsonFormat(indented).encodeToString(JsonObject.serializer(), toJsonObject())
 }
-
-
-
 
 

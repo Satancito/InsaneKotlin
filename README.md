@@ -12,5 +12,5 @@ Insane Kotlin JVM/Android port compatible with Java 8 bytecode and Android-orien
 ## Coordinates
 
 ```kotlin
-implementation("com.insaneio:insane:10.5.7")
+implementation("com.insaneio:insane:10.5.8")
 ```

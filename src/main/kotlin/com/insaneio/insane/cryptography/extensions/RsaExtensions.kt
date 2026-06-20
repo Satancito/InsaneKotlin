@@ -5,6 +5,9 @@ import com.insaneio.insane.cryptography.enums.*
 import com.insaneio.insane.*
 import com.insaneio.insane.cryptography.*
 import com.insaneio.insane.cryptography.abstractions.IEncoder
+import com.insaneio.insane.cryptography.internal.RsaCipherParameters
+import com.insaneio.insane.cryptography.internal.RsaKeyResolution
+import com.insaneio.insane.cryptography.internal.RsaKeyValidation
 import com.insaneio.insane.extensions.toByteArrayUtf8
 import org.xml.sax.InputSource
 import java.io.StringReader
@@ -41,7 +44,8 @@ fun UInt.createRsaKeyPair(encoding: RsaKeyPairEncoding = RsaKeyPairEncoding.Ber)
     val keyFactory: KeyFactory = KeyFactory.getInstance(RSA_ALGORITHM)
     keyPairGenerator.initialize(this.toInt(), SecureRandom())
     val keyPair = keyPairGenerator.generateKeyPair()
-    val encoder = Base64Encoder.defaultInstance
+    val defaultEncoder = Base64Encoder.defaultInstance
+    val pemEncoder = Base64Encoder.pemDefaultInstance
     return when (encoding) {
 
         RsaKeyPairEncoding.Ber -> {
@@ -49,7 +53,7 @@ fun UInt.createRsaKeyPair(encoding: RsaKeyPairEncoding = RsaKeyPairEncoding.Ber)
             val pkcs8KeySpec = PKCS8EncodedKeySpec(keyPair.private.encoded)
             val publicKeyX509 = keyFactory.generatePublic(x509EncodedKeySpec)
             val privateKeyPKCS8 = keyFactory.generatePrivate(pkcs8KeySpec)
-            RsaKeyPair(encoder.encode(publicKeyX509.encoded), encoder.encode(privateKeyPKCS8.encoded))
+            RsaKeyPair(defaultEncoder.encode(publicKeyX509.encoded), defaultEncoder.encode(privateKeyPKCS8.encoded))
         }
 
         RsaKeyPairEncoding.Pem -> {
@@ -60,13 +64,13 @@ fun UInt.createRsaKeyPair(encoding: RsaKeyPairEncoding = RsaKeyPairEncoding.Ber)
             RsaKeyPair(buildString {
                 append(RSA_PEM_PUBLIC_KEY_HEADER)
                 append(LINE_FEED_STRING)
-                append(encoder.encode(publicKeyX509.encoded).insertLineBreaks(BASE64_PEM_LINE_BREAKS_LENGTH))
+                append(pemEncoder.encode(publicKeyX509.encoded))
                 append(LINE_FEED_STRING)
                 append(RSA_PEM_PUBLIC_KEY_FOOTER)
             }, buildString {
                 append(RSA_PEM_PRIVATE_KEY_HEADER)
                 append(LINE_FEED_STRING)
-                append(encoder.encode(privateKeyPKCS8.encoded).insertLineBreaks(BASE64_PEM_LINE_BREAKS_LENGTH))
+                append(pemEncoder.encode(privateKeyPKCS8.encoded))
                 append(LINE_FEED_STRING)
                 append(RSA_PEM_PRIVATE_KEY_FOOTER)
             })
@@ -76,14 +80,14 @@ fun UInt.createRsaKeyPair(encoding: RsaKeyPairEncoding = RsaKeyPairEncoding.Ber)
 
             val rsaPrivateCrtKeySpec: RSAPrivateCrtKeySpec = keyFactory.getKeySpec(keyPair.private, RSAPrivateCrtKeySpec::class.java)
 
-            val modulus = encoder.encode(rsaPrivateCrtKeySpec.modulus.toBigIntegerWithoutSignBit().toByteArray())
-            val exponent = encoder.encode(rsaPrivateCrtKeySpec.publicExponent.toBigIntegerWithoutSignBit().toByteArray())
-            val p = encoder.encode(rsaPrivateCrtKeySpec.primeP.toBigIntegerWithoutSignBit().toByteArray())
-            val q = encoder.encode(rsaPrivateCrtKeySpec.primeQ.toBigIntegerWithoutSignBit().toByteArray())
-            val dp = encoder.encode(rsaPrivateCrtKeySpec.primeExponentP.toBigIntegerWithoutSignBit().toByteArray())
-            val dq = encoder.encode(rsaPrivateCrtKeySpec.primeExponentQ.toBigIntegerWithoutSignBit().toByteArray())
-            val inverseQ = encoder.encode(rsaPrivateCrtKeySpec.crtCoefficient.toBigIntegerWithoutSignBit().toByteArray())
-            val d = encoder.encode(rsaPrivateCrtKeySpec.privateExponent.toBigIntegerWithoutSignBit().toByteArray())
+            val modulus = defaultEncoder.encode(rsaPrivateCrtKeySpec.modulus.toBigIntegerWithoutSignBit().toByteArray())
+            val exponent = defaultEncoder.encode(rsaPrivateCrtKeySpec.publicExponent.toBigIntegerWithoutSignBit().toByteArray())
+            val p = defaultEncoder.encode(rsaPrivateCrtKeySpec.primeP.toBigIntegerWithoutSignBit().toByteArray())
+            val q = defaultEncoder.encode(rsaPrivateCrtKeySpec.primeQ.toBigIntegerWithoutSignBit().toByteArray())
+            val dp = defaultEncoder.encode(rsaPrivateCrtKeySpec.primeExponentP.toBigIntegerWithoutSignBit().toByteArray())
+            val dq = defaultEncoder.encode(rsaPrivateCrtKeySpec.primeExponentQ.toBigIntegerWithoutSignBit().toByteArray())
+            val inverseQ = defaultEncoder.encode(rsaPrivateCrtKeySpec.crtCoefficient.toBigIntegerWithoutSignBit().toByteArray())
+            val d = defaultEncoder.encode(rsaPrivateCrtKeySpec.privateExponent.toBigIntegerWithoutSignBit().toByteArray())
             RsaKeyPair(RSA_XML_PUBLIC_KEY_FORMAT.format(modulus, exponent).trimIndent(), RSA_XML_PRIVATE_KEY_FORMAT.format(modulus, exponent, p, q, dp, dq, inverseQ, d).trimIndent())
         }
 
@@ -126,7 +130,7 @@ private fun org.w3c.dom.Document.getRequiredElementTextOrNull(name: String): Str
 }
 
 
-internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
+internal fun String.getRsaKeyEncodingWithKey(): RsaKeyResolution {
     val keyString = this.trim()
     val keyFactory: KeyFactory = KeyFactory.getInstance(RSA_ALGORITHM)
     val encoder = Base64Encoder.defaultInstance
@@ -134,14 +138,14 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
         return try {
             val keySpec = PKCS8EncodedKeySpec(encoder.decode(keyString))
             val key = keyFactory.generatePrivate(keySpec)
-            Pair(RsaKeyEncoding.BerPrivate, key)
+            RsaKeyResolution(RsaKeyEncoding.BerPrivate, key)
         } catch (ex: Exception) {
             try {
                 val keySpec = X509EncodedKeySpec(encoder.decode(keyString))
                 val key = keyFactory.generatePublic(keySpec)
-                Pair(RsaKeyEncoding.BerPublic, key)
+                RsaKeyResolution(RsaKeyEncoding.BerPublic, key)
             } catch (ex: Exception) {
-                Pair(RsaKeyEncoding.Unknown, null)
+                RsaKeyResolution(RsaKeyEncoding.Unknown)
             }
         }
     }
@@ -182,7 +186,7 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
 
                 val keySpec = RSAPrivateCrtKeySpec(modulus, exponent, d, p, q, dp, dq, inverseQ)
                 val key = keyFactory.generatePrivate(keySpec)
-                return Pair(RsaKeyEncoding.XmlPrivate, key)
+                return RsaKeyResolution(RsaKeyEncoding.XmlPrivate, key)
             }
 
             if (modulusText != null && exponentText != null) {
@@ -191,7 +195,7 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
 
                 val keySpec = RSAPublicKeySpec(modulus, exponent)
                 val key = keyFactory.generatePublic(keySpec)
-                return Pair(RsaKeyEncoding.XmlPublic, key)
+                return RsaKeyResolution(RsaKeyEncoding.XmlPublic, key)
             }
         }
 
@@ -200,85 +204,95 @@ internal fun String.getRsaKeyEncodingWithKey(): Pair<RsaKeyEncoding, Key?> {
             if (privatePemBody != null) {
                 val keySpec = PKCS8EncodedKeySpec(encoder.decode(privatePemBody))
                 val key = keyFactory.generatePrivate(keySpec)
-                return Pair(RsaKeyEncoding.PemPrivate, key)
+                return RsaKeyResolution(RsaKeyEncoding.PemPrivate, key)
             }
 
             val publicPemBody = keyString.extractPemBodyIfValid(RSA_PEM_PUBLIC_KEY_HEADER, RSA_PEM_PUBLIC_KEY_FOOTER)
             if (publicPemBody != null) {
                 val keySpec = X509EncodedKeySpec(encoder.decode(publicPemBody))
                 val key = keyFactory.generatePublic(keySpec)
-                return Pair(RsaKeyEncoding.PemPublic, key)
+                return RsaKeyResolution(RsaKeyEncoding.PemPublic, key)
             }
         }
     } catch (ex: Exception) {
-        return Pair(RsaKeyEncoding.Unknown, null)
+        return RsaKeyResolution(RsaKeyEncoding.Unknown)
     }
-    return Pair(RsaKeyEncoding.Unknown, null)
+    return RsaKeyResolution(RsaKeyEncoding.Unknown)
 }
 
 @Suppress("unused")
 fun String.getRsaKeyEncoding(): RsaKeyEncoding {
-    return this.getRsaKeyEncodingWithKey().first
+    return this.getRsaKeyEncodingWithKey().encoding
 }
 
-internal fun String.validateRsaPublicKeyWithKey(): Pair<Boolean, Key?> {
+internal fun String.validateRsaPublicKeyWithKey(): RsaKeyValidation {
     val encodingResult = this.getRsaKeyEncodingWithKey()
-    return Pair(encodingResult.first == RsaKeyEncoding.XmlPublic || encodingResult.first == RsaKeyEncoding.PemPublic || encodingResult.first == RsaKeyEncoding.BerPublic, encodingResult.second)
+    return RsaKeyValidation(
+        encodingResult.encoding == RsaKeyEncoding.XmlPublic ||
+            encodingResult.encoding == RsaKeyEncoding.PemPublic ||
+            encodingResult.encoding == RsaKeyEncoding.BerPublic,
+        encodingResult.key
+    )
 }
 
-internal fun String.validateRsaPrivateKeyWithKey(): Pair<Boolean, Key?> {
+internal fun String.validateRsaPrivateKeyWithKey(): RsaKeyValidation {
     val encodingResult = this.getRsaKeyEncodingWithKey()
-    return Pair(encodingResult.first == RsaKeyEncoding.XmlPrivate || encodingResult.first == RsaKeyEncoding.PemPrivate || encodingResult.first == RsaKeyEncoding.BerPrivate, encodingResult.second)
+    return RsaKeyValidation(
+        encodingResult.encoding == RsaKeyEncoding.XmlPrivate ||
+            encodingResult.encoding == RsaKeyEncoding.PemPrivate ||
+            encodingResult.encoding == RsaKeyEncoding.BerPrivate,
+        encodingResult.key
+    )
 }
 
 @Suppress("unused")
 fun String.validateRsaPublicKey(): Boolean {
-    return this.validateRsaPublicKeyWithKey().first
+    return this.validateRsaPublicKeyWithKey().isValid
 }
 
 @Suppress("unused")
 fun String.validateRsaPrivateKey(): Boolean {
-    return this.validateRsaPrivateKeyWithKey().first
+    return this.validateRsaPrivateKeyWithKey().isValid
 }
 
 internal fun parsePublicKey(publicKey: String): Key {
-    val (result, rsa) = publicKey.validateRsaPublicKeyWithKey()
-    return if (result) {
-        rsa!!
+    val validation = publicKey.validateRsaPublicKeyWithKey()
+    return if (validation.isValid) {
+        validation.key!!
     } else {
         throw IllegalArgumentException("Unable to parse public key.")
     }
 }
 
 internal fun parsePrivateKey(privateKey: String): Key {
-    val (result, key) = privateKey.validateRsaPrivateKeyWithKey()
-    return if (result) {
-        key!!
+    val validation = privateKey.validateRsaPrivateKeyWithKey()
+    return if (validation.isValid) {
+        validation.key!!
     } else {
         throw IllegalArgumentException("Unable to parse private key.")
     }
 }
 
-internal fun getRsaCipherParameters(padding: RsaPadding): Pair<String, OAEPParameterSpec?> {
+internal fun getRsaCipherParameters(padding: RsaPadding): RsaCipherParameters {
     return when (padding) {
-        RsaPadding.Pkcs1 -> Pair(RSA_PADDING_PKCS1, null as OAEPParameterSpec?)
-        RsaPadding.OaepSha1 -> Pair(RSA_PADDING_OAEP_SHA1, OAEPParameterSpec( SHA1_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT))
-        RsaPadding.OaepSha256 -> Pair(RSA_PADDING_OAEP_SHA256, OAEPParameterSpec(SHA256_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT))
-        RsaPadding.OaepSha384 -> Pair(RSA_PADDING_OAEP_SHA384, OAEPParameterSpec(SHA384_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA384, PSource.PSpecified.DEFAULT))
-        RsaPadding.OaepSha512 -> Pair(RSA_PADDING_OAEP_SHA512, OAEPParameterSpec(SHA512_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA512, PSource.PSpecified.DEFAULT))
+        RsaPadding.Pkcs1 -> RsaCipherParameters(RSA_PADDING_PKCS1)
+        RsaPadding.OaepSha1 -> RsaCipherParameters(RSA_PADDING_OAEP_SHA1, OAEPParameterSpec(SHA1_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT))
+        RsaPadding.OaepSha256 -> RsaCipherParameters(RSA_PADDING_OAEP_SHA256, OAEPParameterSpec(SHA256_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT))
+        RsaPadding.OaepSha384 -> RsaCipherParameters(RSA_PADDING_OAEP_SHA384, OAEPParameterSpec(SHA384_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA384, PSource.PSpecified.DEFAULT))
+        RsaPadding.OaepSha512 -> RsaCipherParameters(RSA_PADDING_OAEP_SHA512, OAEPParameterSpec(SHA512_ALGORITHM_NAME, RSA_OAEP_MFG1_NAME, MGF1ParameterSpec.SHA512, PSource.PSpecified.DEFAULT))
     }
 }
 fun ByteArray.encryptRsa(publicKey: String, padding: RsaPadding = RsaPadding.OaepSha256): ByteArray {
     val key = parsePublicKey(publicKey)
-    val (rsaPadding: String, oaepParameterSpec: OAEPParameterSpec?) = getRsaCipherParameters(padding)
-    val cipher = Cipher.getInstance("$RSA_ALGORITHM/$RSA_ECB_MODE_NAME/${rsaPadding}")
-    if(oaepParameterSpec == null)
+    val cipherParameters = getRsaCipherParameters(padding)
+    val cipher = Cipher.getInstance("$RSA_ALGORITHM/$RSA_ECB_MODE_NAME/${cipherParameters.padding}")
+    if(cipherParameters.parameterSpec == null)
     {
         cipher.init(Cipher.ENCRYPT_MODE, key)
     }
     else
     {
-        cipher.init(Cipher.ENCRYPT_MODE, key, oaepParameterSpec)
+        cipher.init(Cipher.ENCRYPT_MODE, key, cipherParameters.parameterSpec)
     }
     return cipher.doFinal(this)
 }
@@ -297,15 +311,15 @@ fun String.encryptRsaEncoded(publicKey: String, encoder: IEncoder, padding: RsaP
 
 fun ByteArray.decryptRsa(privateKey: String, padding: RsaPadding = RsaPadding.OaepSha256): ByteArray {
     val key = parsePrivateKey(privateKey)
-    val (rsaPadding: String, oaepParameterSpec: OAEPParameterSpec?) = getRsaCipherParameters(padding)
-    val cipher = Cipher.getInstance("$RSA_ALGORITHM/$RSA_ECB_MODE_NAME/$rsaPadding")
-    if(oaepParameterSpec == null)
+    val cipherParameters = getRsaCipherParameters(padding)
+    val cipher = Cipher.getInstance("$RSA_ALGORITHM/$RSA_ECB_MODE_NAME/${cipherParameters.padding}")
+    if(cipherParameters.parameterSpec == null)
     {
         cipher.init(Cipher.DECRYPT_MODE, key)
     }
     else
     {
-        cipher.init(Cipher.DECRYPT_MODE, key, oaepParameterSpec)
+        cipher.init(Cipher.DECRYPT_MODE, key, cipherParameters.parameterSpec)
     }
     return cipher.doFinal(this)
 }
