@@ -4,6 +4,42 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.9
+
+This patch release completes the integer enum serializer infrastructure by separating strict and compatibility-oriented behaviors and replacing the empty legacy placeholder with real Kotlin implementations.
+
+### Serialization
+
+Added or improved:
+
+- added `EnumAsIntSerializer` as the compatibility-oriented integer enum serializer
+- implemented `StrictEnumAsIntSerializer` as a strict integer-only enum serializer
+- replaced the previous empty `StrictEnumAsIntSerializer.java` placeholder with Kotlin serializer implementations
+- clarified package documentation to explain the difference between the compatibility and strict integer serializers
+
+### Tests
+
+Added:
+
+- coverage for `EnumAsIntSerializer` serialization and compatible deserialization behavior
+- coverage for `StrictEnumAsIntSerializer` integer-only deserialization behavior
+- coverage for `StrictEnumAsStringSerializer` strict string-only deserialization behavior
+
+### Validation
+
+Confirmed:
+
+- `test` succeeds after the serializer additions and contract split
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.9`
+- README dependency example to `10.5.9`
+
+---
+
 ## 10.5.8
 
 This patch release cleans up the RSA extension internals by replacing tuple-based helper results with internal named wrappers and by introducing an explicit PEM-oriented Base64 default.

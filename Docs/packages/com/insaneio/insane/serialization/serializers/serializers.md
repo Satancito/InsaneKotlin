@@ -24,8 +24,9 @@ enum class ExampleEnum {
 ## Reusable Serializer Infrastructure
 
 - `EnumAsStringSerializer`: shared string-based enum representation.
+- `EnumAsIntSerializer`: integer-based enum serializer that writes ordinals and can read numeric ordinals, numeric strings, or exact enum names.
 - `StrictEnumAsStringSerializer`: strict enum validation with exact allowed values.
-- `StrictEnumAsIntSerializer`: compatibility-oriented integer serializer for legacy cases.
+- `StrictEnumAsIntSerializer`: strict integer-based enum serializer that writes ordinals and only reads numeric JSON values.
 
 ## Notes
 
