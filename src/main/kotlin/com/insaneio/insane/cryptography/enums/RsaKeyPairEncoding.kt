@@ -1,6 +1,6 @@
 package com.insaneio.insane.cryptography.enums
 
-import com.insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
+import com.insaneio.insane.serialization.serializers.EnumAsStringSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = RsaKeyPairEncodingSerializer::class)
@@ -10,7 +10,8 @@ enum class RsaKeyPairEncoding {
     Xml
 }
 
-private object  RsaKeyPairEncodingSerializer: StrictEnumAsStringSerializer<RsaKeyPairEncoding>(RsaKeyPairEncoding::class)
+private object  RsaKeyPairEncodingSerializer: EnumAsStringSerializer<RsaKeyPairEncoding>(RsaKeyPairEncoding::class)
+
 
 
 

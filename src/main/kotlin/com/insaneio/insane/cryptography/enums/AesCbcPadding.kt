@@ -1,6 +1,6 @@
 package com.insaneio.insane.cryptography.enums
 
-import com.insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
+import com.insaneio.insane.serialization.serializers.EnumAsStringSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = AesCbcPaddingSerializer::class)
@@ -14,7 +14,8 @@ enum class AesCbcPadding {
 }
 
 
-private object AesCbcPaddingSerializer: StrictEnumAsStringSerializer<AesCbcPadding>(AesCbcPadding::class)
+private object AesCbcPaddingSerializer: EnumAsStringSerializer<AesCbcPadding>(AesCbcPadding::class)
+
 
 
 

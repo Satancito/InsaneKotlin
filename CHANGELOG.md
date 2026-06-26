@@ -4,6 +4,46 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.10
+
+This patch release makes all public enum serializers tolerant on deserialization while keeping string-based JSON output.
+
+### Serialization
+
+Changed:
+
+- migrated public cryptography and security enums from `StrictEnumAsStringSerializer` to `EnumAsStringSerializer`
+- public enums now serialize as string names and deserialize from either string names or integer ordinals
+- kept the strict serializer variants available for call sites that still need strict contracts
+
+### Tests
+
+Added:
+
+- `EnumToleranceUnitTests` to verify tolerant enum behavior across real public enums
+- dedicated `EnumAsStringSerializer` tests separate from the strict serializer suites
+
+### Documentation
+
+Updated:
+
+- serializer package docs to explain that public Insane enums now use tolerant string serializers by default
+
+### Validation
+
+Confirmed:
+
+- `test` succeeds after the enum serializer migration
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.10`
+- README dependency example to `10.5.10`
+
+---
+
 ## 10.5.9
 
 This patch release completes the integer enum serializer infrastructure by separating strict and compatibility-oriented behaviors and replacing the empty legacy placeholder with real Kotlin implementations.

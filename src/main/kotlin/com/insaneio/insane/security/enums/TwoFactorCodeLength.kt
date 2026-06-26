@@ -1,6 +1,6 @@
 package com.insaneio.insane.security.enums
 
-import com.insaneio.insane.serialization.serializers.StrictEnumAsStringSerializer
+import com.insaneio.insane.serialization.serializers.EnumAsStringSerializer
 import kotlinx.serialization.Serializable
 
 @Serializable(with = TwoFactorCodeLengthSerializer::class)
@@ -11,4 +11,5 @@ enum class TwoFactorCodeLength(val digits: Int) {
 }
 
 private object TwoFactorCodeLengthSerializer :
-    StrictEnumAsStringSerializer<TwoFactorCodeLength>(TwoFactorCodeLength::class)
+    EnumAsStringSerializer<TwoFactorCodeLength>(TwoFactorCodeLength::class)
+
