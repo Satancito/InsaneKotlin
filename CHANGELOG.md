@@ -4,6 +4,34 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.11
+
+### Publishing
+
+Changed:
+
+- removed repository support for the legacy `Invoke-Publishing.ps1` workflow
+- standardized publishing documentation around `Tools/DevSecretsManagerPs`, `Tools/JvmMavenCentralPublisherPs`, and `Agent-JvmMavenCentralPublisherPs.MD`
+- updated the publisher tool submodule to `0.3.2`
+- adopted the current tool-provided `publish.gradle.kts`, including deferred publish-secret resolution during Gradle configuration
+
+### Documentation
+
+Updated:
+
+- `README.md`
+- `Docs/Publishing.md`
+- `Version.MD`
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.11`
+- README dependency example to `10.5.11`
+
+---
+
 ## 10.5.10
 
 This patch release makes all public enum serializers tolerant on deserialization while keeping string-based JSON output.
