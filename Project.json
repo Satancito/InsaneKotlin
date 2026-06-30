@@ -15,6 +15,11 @@
       "RepositoryUrl": "https://github.com/Satancito/DevSecretsManagerPs.git",
       "RepositoryName": "DevSecretsManagerPs",
       "Tag": null
+    },
+    {
+      "RepositoryUrl": "https://github.com/Satancito/JvmMavenCentralPublisherPs.git",
+      "RepositoryName": "JvmMavenCentralPublisherPs",
+      "Tag": null
     }
   ]
 }
