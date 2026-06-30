@@ -1,6 +1,0 @@
-[submodule "Tools/DevSecretsManagerPs"]
-	path = Tools/DevSecretsManagerPs
-	url = https://github.com/Satancito/DevSecretsManagerPs.git
-[submodule "Tools/JvmMavenCentralPublisherPs"]
-	path = Tools/JvmMavenCentralPublisherPs
-	url = https://github.com/Satancito/JvmMavenCentralPublisherPs.git
