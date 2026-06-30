@@ -1,0 +1,20 @@
+{
+  "Project": "gradlew",
+  "Tools": [
+    {
+      "RepositoryUrl": "https://github.com/Satancito/DevSecretsManagerPs.git",
+      "RepositoryName": "DevSecretsManagerPs"
+    },
+    {
+      "RepositoryUrl": "https://github.com/Satancito/JvmMavenCentralPublisherPs.git",
+      "RepositoryName": "JvmMavenCentralPublisherPs"
+    }
+  ],
+  "ProjectTools": [
+    {
+      "RepositoryUrl": "https://github.com/Satancito/DevSecretsManagerPs.git",
+      "RepositoryName": "DevSecretsManagerPs",
+      "Tag": null
+    }
+  ]
+}
