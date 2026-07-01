@@ -50,7 +50,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ProjectManagerVersion = "0.1.0"
+$ProjectManagerVersion = "0.2.0"
 $ProjectConfigurationPath = "Project.json"
 $ProjectManagerScriptUrl = "https://raw.githubusercontent.com/Satancito/ToolsManagerPs/main/ProjectManager.ps1"
 
@@ -107,7 +107,8 @@ Modes:
   -Init
     Creates Project.json if it does not exist. If Project.json exists, it ensures the Project property exists
     with null as the default value and ProjectTools exists as an array. If Project.json or ProjectTools are
-    regenerated, the script runs -Tools Update to repair the configured submodules.
+    regenerated, the script runs -Tools Update to repair the configured submodules. When -Init is invoked
+    explicitly, it always runs -Tools Update after initialization to refresh tool files and versions.
 
   -List
     Initializes Project.json and writes the complete configuration as indented JSON.
@@ -1104,12 +1105,13 @@ if ($Version) {
 
 $projectConfigurationWasRepaired = Initialize-ProjectConfiguration -Path $ProjectConfigurationPath
 
-if ($projectConfigurationWasRepaired) {
+if ($Init) {
     Use-ProjectTools -Path $ProjectConfigurationPath
+    return
 }
 
-if ($Init) {
-    return
+if ($projectConfigurationWasRepaired) {
+    Use-ProjectTools -Path $ProjectConfigurationPath
 }
 
 if ($List) {
