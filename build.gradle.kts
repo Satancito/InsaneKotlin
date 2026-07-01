@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.insaneio"
-version = "10.5.12"
+version = "10.5.13"
 description =
     "Insane is a Kotlin/JVM cryptography and security library that provides encoders, hashers, encryptors, RSA utilities, TOTP support, and JSON serialization helpers."
 

@@ -4,6 +4,32 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.13
+
+### Publishing
+
+Changed:
+
+- removed the repository-root `Agent-DevSecretsManagerPs.MD` and `Agent-JvmMavenCentralPublisherPs.MD` guidance files from the tracked release flow
+- updated the publishing guide to use `ProjectManager.ps1`, `Project.json`, `Version.MD`, and the tool READMEs as the active repository workflow
+- removed the obsolete `ProjectPath.txt`-based publishing reference from repository documentation
+
+### Tooling
+
+Changed:
+
+- stopped tracking the repository-root `env.json` file as part of the release state
+- simplified `.idea/vcs.xml` so the IDE maps only the main repository Git root
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.13`
+- README dependency examples to `10.5.13`
+
+---
+
 ## 10.5.12
 
 ### Tooling

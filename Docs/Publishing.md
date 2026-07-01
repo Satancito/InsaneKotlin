@@ -9,7 +9,8 @@ The current publishing workflow is based on these repository-local tools:
 
 The canonical repository flow is defined in:
 
-- `Agent-JvmMavenCentralPublisherPs.MD`
+- `Version.MD`
+- `Version.es-ES.MD`
 
 ## Overview
 
@@ -26,12 +27,11 @@ This keeps secret management out of tracked Gradle files and out of the reposito
 
 Important tracked files for the publishing setup are:
 
-- `ProjectPath.txt`
+- `Project.json`
+- `ProjectManager.ps1`
 - `build.gradle.kts`
 - `publish.gradle.kts`
 - `gradle.properties`
-- `Agent-JvmMavenCentralPublisherPs.MD`
-- `Agent-DevSecretsManagerPs.MD`
 
 Important tool paths are:
 
@@ -130,17 +130,23 @@ The repository must contain these submodules:
 - `Tools/DevSecretsManagerPs`
 - `Tools/JvmMavenCentralPublisherPs`
 
-The installation and update flow is documented in:
+The repository uses `ProjectManager.ps1` and `Project.json` to keep these tools aligned.
 
-- `Agent-JvmMavenCentralPublisherPs.MD`
+Typical preparation flow from the repository root:
 
-That flow is responsible for:
+```powershell
+.\ProjectManager.ps1 -Init
+.\ProjectManager.ps1 -Tools Update
+```
 
-- installing or updating both submodules
-- copying `Agent-DevSecretsManagerPs.MD` and `Agent-JvmMavenCentralPublisherPs.MD` to the repository root
-- copying `publish.gradle.kts` into the Gradle wrapper directory
-- ensuring `build.gradle.kts` applies `publish.gradle.kts`
-- ensuring required `gradle.properties` keys exist
+If the tools are not listed yet, add them:
+
+```powershell
+.\ProjectManager.ps1 -Tools Add -RepositoryName DevSecretsManagerPs -RepositoryUrl https://github.com/Satancito/DevSecretsManagerPs.git -Tag ""
+.\ProjectManager.ps1 -Tools Add -RepositoryName JvmMavenCentralPublisherPs -RepositoryUrl https://github.com/Satancito/JvmMavenCentralPublisherPs.git -Tag ""
+```
+
+Then follow the current release workflow in `Version.MD`, and use the tool READMEs under `Tools/` when you need tool-specific usage details.
 
 ## Step 7. Initialize secrets
 
@@ -151,10 +157,6 @@ Initialize the publisher tool:
 ```
 
 This prepares the local secret store through `DevSecretsManagerPs` and creates any missing publisher secret entries.
-
-The tracked repository file is:
-
-- `Tools/DevSecretsManagerPs/env.json`
 
 The actual secret values are stored outside the repository in the current user's home directory.
 
@@ -246,7 +248,7 @@ This uploads the public key to the configured key servers and verifies that each
 When the release commit and tag are already pushed to GitHub, publish with:
 
 ```powershell
-.\Tools\JvmMavenCentralPublisherPs\MavenCentralPublisher.ps1 -Publish -ProjectGradleCommand (Get-Content .\ProjectPath.txt)
+.\Tools\JvmMavenCentralPublisherPs\MavenCentralPublisher.ps1 -Publish
 ```
 
 The tool validates:
@@ -272,8 +274,8 @@ Recommended order:
 4. commit release changes
 5. create the release tag
 6. push commit and tag to GitHub
-7. execute the full flow defined by `Agent-JvmMavenCentralPublisherPs.MD`
-8. run the publisher tool to upload the public key if needed and publish the package
+7. run the publisher tool to upload the public key if needed
+8. run the publisher tool to publish the package
 
 ## Troubleshooting
 
