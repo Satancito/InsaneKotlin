@@ -1,7 +1,7 @@
 # InsaneKotlin
-Insane Kotlin JVM/Android port compatible with Java 8 bytecode and Android-oriented JVM targets.
+Puerto Kotlin JVM/Android de Insane compatible con bytecode de Java 8 y objetivos JVM orientados a Android.
 
-## Documentation
+## Documentacion
 
 - [Docs/Publishing.md](Docs/Publishing.md)
 - [Agent-JvmMavenCentralPublisherPs.MD](Agent-JvmMavenCentralPublisherPs.MD)
@@ -10,19 +10,19 @@ Insane Kotlin JVM/Android port compatible with Java 8 bytecode and Android-orien
 - [Docs/packages/packages.md](Docs/packages/packages.md)
 - [CHANGELOG.md](CHANGELOG.md)
 
-## Publishing
+## Publicacion
 
-Maven Central publishing is now handled through:
+La publicacion en Maven Central ahora se gestiona mediante:
 
 - `Tools/DevSecretsManagerPs`
 - `Tools/JvmMavenCentralPublisherPs`
 
-Repository preparation and release publishing flow are documented in:
+El flujo de preparacion del repositorio y publicacion de releases esta documentado en:
 
 - [Agent-JvmMavenCentralPublisherPs.MD](Agent-JvmMavenCentralPublisherPs.MD)
 - [Docs/Publishing.md](Docs/Publishing.md)
 
-## Coordinates
+## Coordenadas
 
 ```kotlin
 implementation("com.insaneio:insane:10.5.12")

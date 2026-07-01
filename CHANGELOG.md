@@ -4,6 +4,32 @@ All notable changes to this project are documented in this file.
 
 ---
 
+## 10.5.12
+
+### Tooling
+
+Added or changed:
+
+- added `ProjectManager.ps1` to manage project-level tool metadata from `Project.json`
+- replaced `ProjectPath.txt` with `Project.json` as the tracked project tool configuration file
+
+### Documentation
+
+Updated:
+
+- added `README.es-ES.MD`
+- added `Version.es-ES.MD`
+- updated `Version.MD` and `Version.es-ES.MD` to require publish only after successful push and final verification
+
+### Versioning
+
+Updated:
+
+- library version to `10.5.12`
+- README dependency examples to `10.5.12`
+
+---
+
 ## 10.5.11
 
 ### Publishing

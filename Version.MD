@@ -2,6 +2,13 @@
 
 This file defines the required workflow for versioning and releasing changes from this repository.
 
+This repository maintains two release workflow files:
+
+- `Version.MD` in English
+- `Version.es-ES.MD` in Spanish
+
+Keep both files aligned whenever release rules change.
+
 ## Source Of Truth
 
 The authoritative project version metadata for this repository must live in:
@@ -79,6 +86,7 @@ Usually that includes:
 README.md
 CHANGELOG.md
 Version.MD
+Version.es-ES.MD
 Docs/Publishing.md
 Docs/packages/...
 ```
@@ -86,6 +94,7 @@ Docs/packages/...
 Keep `README.md` concise and consumer-oriented.
 Keep `CHANGELOG.md` focused on notable release changes.
 Keep `Version.MD` focused on versioning and release rules.
+Keep `Version.es-ES.MD` aligned with the same release rules in Spanish.
 
 ## Validate Before Commit
 
@@ -151,16 +160,6 @@ Push the release tag:
 git push origin 10.5.11
 ```
 
-## Publish
-
-After the release commit and tag have been pushed to GitHub, execute the complete workflow defined in:
-
-```text
-Agent-JvmMavenCentralPublisherPs.MD
-```
-
-Follow that workflow end-to-end for the publication phase.
-
 ## Final Check
 
 Confirm the working tree is clean or only contains intentionally local files:
@@ -173,4 +172,20 @@ Confirm the tag points at the release commit:
 
 ```powershell
 git tag --points-at HEAD
+```
+
+## Publish
+
+Run publish only after the versioning flow was completed correctly, the final verification succeeded, and both pushes finished successfully:
+
+- the branch push completed successfully
+- the release tag push completed successfully
+- the final check confirmed the expected release state
+
+Do not publish before the release has been fully pushed to the remote Git repository.
+
+Use the publishing tool directly:
+
+```powershell
+.\Tools\JvmMavenCentralPublisherPs\MavenCentralPublisher.ps1 -Publish
 ```
